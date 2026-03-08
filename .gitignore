@@ -1,3 +1,4 @@
 bin/
 obj/
-.vscode/
+.vscode/.DS_Store
+Areas/Client/Views/_ViewStart.cshtml
