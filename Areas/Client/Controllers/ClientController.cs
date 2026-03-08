@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace YourProjectName.Areas.Client.Controllers
+namespace GroupOneFlight.Areas.Client.Controllers
 {
     [Area("Client")]
     public class ClientController : Controller

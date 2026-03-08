@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Client Area</title>
+    <title>@ViewData["Title"] - Client Area</title>
 </head>
 
 <body>
 
 <h2>Client Navigation</h2>
 
-<a href="/Client/Client">Client Dashboard</a>
+<a asp-area="Client" asp-controller="Client" asp-action="Index">
+    Client Dashboard
+</a>
 
 <hr>
 
