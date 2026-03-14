@@ -9,5 +9,15 @@ namespace GroupOneFlight.Areas.Admin.Controllers
         {
             return View();
         }
+
+        public ContentResult Manage()
+        {
+            return Content("Admin Area – Manage Users");
+        }
+
+        public ContentResult Rights()
+        {
+            return Content("Admin Area – Rights & Obligations");
+        }
     }
 }
