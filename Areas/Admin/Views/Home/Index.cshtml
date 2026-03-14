@@ -1,9 +1,9 @@
-<h1>Admin Dashboard</h1>
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
 
-<p>Welcome to the Admin area.</p>
-
-<ul>
-    <li><a href="/Admin/Users">Manage Users</a></li>
-    <li><a href="/Admin/Admin/Manage">Admin Manage</a></li>
-    <li><a href="/Admin/Admin/Rights">Rights & Obligations</a></li>
-</ul>
+<div class="text-center py-5">
+    <h1 class="display-4">Admin Dashboard</h1>
+    <p class="lead">Welcome, Administrator. Manage users and system settings from here.</p>
+</div>
