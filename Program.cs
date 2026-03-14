@@ -17,7 +17,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
+app.UseStaticFiles();
 
 // Route for AREAS (Admin, Client, Airline, etc.)
 app.MapControllerRoute(
