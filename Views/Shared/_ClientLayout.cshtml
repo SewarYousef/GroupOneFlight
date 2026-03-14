@@ -1,42 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>@ViewData["Title"] - Client Area</title>
-</head>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
-<body>
+<nav class="navbar navbar-expand-sm navbar-light bg-light border-bottom mb-3">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active fw-bold" : "text-dark")"
+                       asp-area="Client" asp-controller="Client" asp-action="Index">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Search" ? "active fw-bold" : "text-dark")"
+                       asp-area="Client" asp-controller="Client" asp-action="Search">Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active fw-bold" : "text-dark")"
+                       asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Users" asp-action="Index">Admin</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="Airline" asp-controller="Airline" asp-action="Index">Airline</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
-<h2>Client Navigation</h2>
-
-<a asp-area="Client" asp-controller="Client" asp-action="Index">
-    Dashboard
-</a> |
-
-<a asp-area="Client" asp-controller="Flight" asp-action="Search">
-    Search Flights
-</a> |
-
-<a asp-area="Client" asp-controller="Home" asp-action="Privacy">
-    Privacy
-</a>
-
-<span style="float:right">
-
-<a asp-area="Admin" asp-controller="Home" asp-action="Index">
-    Admin
-</a> |
-
-<a asp-area="Airline" asp-controller="Home" asp-action="Index">
-    Airline
-</a>
-
-</span>
-
-<hr>
-
-<div>
-    @RenderBody()
-</div>
-
-</body>
-</html>
+@RenderBody()
