@@ -2,35 +2,30 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<nav class="navbar navbar-expand-lg admin-navbar">
+<nav class="navbar navbar-expand-sm navbar-light bg-light border-bottom mb-3">
     <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav me-auto">
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav flex-grow-1">
                 <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active fw-bold" : "text-dark")"
                        asp-area="Admin" asp-controller="Users" asp-action="Index">Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Manage" ? "active" : "")"
+                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Manage" ? "active fw-bold" : "text-dark")"
                        asp-area="Admin" asp-controller="Users" asp-action="Manage">Manage</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Rights" ? "active" : "")"
+                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Rights" ? "active fw-bold" : "text-dark")"
                        asp-area="Admin" asp-controller="Users" asp-action="Rights">Rights &amp; Obligations</a>
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">View Site</a>
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">View Site</a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
 
-<div class="container mt-4">
-    @RenderBody()
-</div>
+@RenderBody()
