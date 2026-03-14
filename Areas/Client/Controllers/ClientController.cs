@@ -7,7 +7,17 @@ namespace GroupOneFlight.Areas.Client.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            return View(); // Dashboard page
+        }
+
+        public IActionResult Search()
+        {
+            return Content("Search Page");
+        }
+
+        public IActionResult Privacy()
+        {
+            return Content("Privacy Page");
         }
     }
 }
