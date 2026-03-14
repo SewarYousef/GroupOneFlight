@@ -9,8 +9,28 @@
 <h2>Client Navigation</h2>
 
 <a asp-area="Client" asp-controller="Client" asp-action="Index">
-    Client Dashboard
+    Dashboard
+</a> |
+
+<a asp-area="Client" asp-controller="Flight" asp-action="Search">
+    Search Flights
+</a> |
+
+<a asp-area="Client" asp-controller="Home" asp-action="Privacy">
+    Privacy
 </a>
+
+<span style="float:right">
+
+<a asp-area="Admin" asp-controller="Home" asp-action="Index">
+    Admin
+</a> |
+
+<a asp-area="Airline" asp-controller="Home" asp-action="Index">
+    Airline
+</a>
+
+</span>
 
 <hr>
 
