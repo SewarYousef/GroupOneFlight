@@ -9,5 +9,15 @@ namespace YourProjectName.Areas.Airline.Controllers
         {
             return View();
         }
+
+        public IActionResult Manage()
+        {
+            return Content("Manage Flights - Testing Route");
+        }
+
+        public IActionResult Regulation()
+        {
+            return Content("Regulation - Testing Route");
+        }
     }
 }
