@@ -5,7 +5,7 @@ namespace GroupOneFlight.Areas.Admin.Controllers
     [Area("Admin")]
     public class UsersController : Controller
     {
-        public IActionResult Index()
+         public IActionResult Index()
         {
             return View();
         }
