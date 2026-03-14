@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace YourProjectName.Areas.Airline.Controllers
+namespace GroupOneFlight.Areas.Airline.Controllers
 {
     [Area("Airline")]
     public class AirlineController : Controller
@@ -10,14 +10,14 @@ namespace YourProjectName.Areas.Airline.Controllers
             return View();
         }
 
-        public IActionResult Manage()
+        public ContentResult Manage()
         {
-            return Content("Manage Flights - Testing Route");
+            return Content("Airline Area - Manage Flights");
         }
 
-        public IActionResult Regulation()
+        public ContentResult Regulation()
         {
-            return Content("Regulation - Testing Route");
+            return Content("Airline Area - Regulation");
         }
     }
 }
