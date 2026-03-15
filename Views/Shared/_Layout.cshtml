@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     <style>
+        /* Highlight active link */
         .navbar-nav .nav-link.active {
             color: #0d6efd !important;
             font-weight: bold;
@@ -23,6 +24,7 @@
     <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
 
+            <!-- Brand -->
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                 GroupOneFlight
             </a>
@@ -37,9 +39,9 @@
                 <!-- LEFT SIDE NAV -->
                 <ul class="navbar-nav flex-grow-1">
 
-                    <!-- Dashboard -->
+                    <!-- Dashboard (Home) -->
                     <li class="nav-item">
-                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString()=="Home" && ViewContext.RouteData.Values["action"]?.ToString()=="Index" ? "active" : "")"
+                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                            asp-area="" asp-controller="Home" asp-action="Index">
                             Dashboard
                         </a>
@@ -47,15 +49,15 @@
 
                     <!-- Search -->
                     <li class="nav-item">
-                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString()=="Search" ? "active" : "")"
-                           asp-area="" asp-controller="Home" asp-action="Search">
+                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Search" ? "active" : "")"
+                           asp-area="" asp-controller="Search" asp-action="Index">
                             Search
                         </a>
                     </li>
 
                     <!-- Privacy -->
                     <li class="nav-item">
-                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString()=="Home" && ViewContext.RouteData.Values["action"]?.ToString()=="Privacy" ? "active" : "")"
+                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")"
                            asp-area="" asp-controller="Home" asp-action="Privacy">
                             Privacy
                         </a>
@@ -63,18 +65,18 @@
 
                 </ul>
 
-                <!-- RIGHT SIDE NAV -->
+                <!-- RIGHT SIDE NAV (Admin & Airline) -->
                 <ul class="navbar-nav ms-auto">
 
                     <li class="nav-item">
-                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["area"]?.ToString()=="Admin" ? "active" : "")"
+                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["area"]?.ToString() == "Admin" ? "active" : "")"
                            asp-area="Admin" asp-controller="Users" asp-action="Index">
                             Admin
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["area"]?.ToString()=="Airlines" ? "active" : "")"
+                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["area"]?.ToString() == "Airlines" ? "active" : "")"
                            asp-area="Airlines" asp-controller="Flights" asp-action="Index">
                             Airline
                         </a>
@@ -87,13 +89,11 @@
     </nav>
 </header>
 
-
 <div class="container">
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
 </div>
-
 
 <footer class="border-top footer text-muted">
     <div class="container">
@@ -102,11 +102,9 @@
     </div>
 </footer>
 
-
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
-
 @await RenderSectionAsync("Scripts", required: false)
 
 </body>

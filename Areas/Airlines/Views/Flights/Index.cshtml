@@ -1,0 +1,24 @@
+@{
+    Layout = "~/Views/Shared/_AirlineLayout.cshtml";
+    ViewData["Title"] = "Airline Dashboard";
+}
+
+<div class="container py-5 text-center">
+
+    <div class="card p-5 rounded shadow-sm bg-light">
+        <h1 class="mb-3 display-4">Airline Dashboard</h1>
+        <p class="lead mb-4">Welcome! Manage your flights and view regulations from here.</p>
+
+        <div class="d-grid gap-3 col-6 mx-auto">
+    
+            <a class="btn btn-primary btn-lg" href="/Airlines/Flights/Manage">
+                Go to Manage Flights
+            </a>
+
+            <a class="btn btn-info btn-lg text-white" href="/Airlines/Flights/Regulation">
+                View Regulations
+            </a>
+        </div>
+    </div>
+
+</div>
