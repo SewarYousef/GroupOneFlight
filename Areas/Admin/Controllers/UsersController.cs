@@ -5,17 +5,20 @@ namespace GroupOneFlight.Areas.Admin.Controllers
     [Area("Admin")]
     public class UsersController : Controller
     {
-         public IActionResult Index()
+        // Admin Dashboard
+        public IActionResult Index()
         {
             return View();
         }
 
-        public ContentResult Manage()
+        // Manage Users (Routing Test)
+        public IActionResult Manage()
         {
             return Content("Admin Area – Manage Users");
         }
 
-        public ContentResult Rights()
+        // Rights & Obligations (Routing Test)
+        public IActionResult Rights()
         {
             return Content("Admin Area – Rights & Obligations");
         }

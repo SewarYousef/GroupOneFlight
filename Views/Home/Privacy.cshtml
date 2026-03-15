@@ -1,6 +1,12 @@
-﻿@{
+﻿@* /Views/Home/Privacy.cshtml *@
+@{
     ViewData["Title"] = "Privacy Policy";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container py-5 text-center">
+    <div class="card p-5 rounded shadow-sm bg-light">
+        <h1 class="mb-3">@ViewData["Title"]</h1>
+        <p class="lead">At GroupOneFlight, we respect your privacy and are committed to protecting your personal information.</p>
+    </div>
+</div>

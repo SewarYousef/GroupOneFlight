@@ -1,9 +1,26 @@
-﻿<h1>Flight Management System</h1>
+﻿@* Main Landing Page *@
+@{
+ Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Flight Management System";
+}
 
-<h3>Select a Portal</h3>
+<div class="container py-5 text-center">
 
-<ul>
-    <li><a href="/Admin">Admin Portal</a></li>
-    <li><a href="/Client">Client Portal</a></li>
-    <li><a href="/Airline">Airline Portal</a></li>
-</ul>
+    <div class="card p-5 rounded shadow-sm bg-light">
+        <h1 class="mb-3">Flight Management System</h1>
+        <h3 class="mb-4">Select a Portal</h3>
+
+        <div class="d-grid gap-3 col-6 mx-auto">
+            <!-- Admin Portal -->
+            <a class="btn btn-primary btn-lg" href="/Admin/Users/Index">
+                Admin Portal
+            </a>
+
+            <!-- Airline Portal -->
+            <a class="btn btn-info btn-lg text-white" href="/Airlines/Flights/Index">
+                Airline Portal
+            </a>
+        </div>
+    </div>
+
+</div>

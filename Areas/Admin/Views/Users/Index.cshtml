@@ -1,9 +1,27 @@
 @{
-    ViewData["Title"] = "Admin Dashboard";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="text-center py-5">
-    <h1 class="display-4">Admin Dashboard</h1>
-    <p class="lead">Welcome, Administrator. Manage users and system settings from here.</p>
+<div class="container py-5 text-center">
+
+    <div class="card p-5 rounded shadow-sm bg-light main-card">
+        <h1 class="mb-3 display-4">Admin Dashboard</h1>
+        <p class="lead mb-4">Manage users and review rights & obligations.</p>
+
+        <div class="d-grid gap-3 col-6 mx-auto">
+
+            <!-- Manage Users -->
+            <a class="btn btn-primary btn-lg" href="/Admin/Users/Manage">
+                Manage Users
+            </a>
+
+            <!-- Rights & Obligations -->
+            <a class="btn btn-secondary btn-lg text-white" href="/Admin/Users/Rights">
+                View Rights & Obligations
+            </a>
+
+        </div>
+    </div>
+
 </div>

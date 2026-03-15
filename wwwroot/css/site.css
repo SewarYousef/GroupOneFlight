@@ -1,5 +1,8 @@
+h/* Base font size */
 html {
   font-size: 14px;
+  position: relative;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,24 +11,71 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+/* Body and background */
+body {
+  margin-bottom: 60px;
+  background-image: url('/images/flight-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  pointer-events: auto; /* ensures content can be clicked */
+}
+
+/* Buttons focus style */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+/* Main dashboard card */
+.main-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 12px;
+  max-width: 500px;
+  margin: 80px auto;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+
+  position: relative;   /* fixes click/hover blocking */
+  z-index: 10;
+  pointer-events: auto;
 }
 
-body {
-  margin-bottom: 60px;
+/* Dashboard buttons hover */
+.main-card a.btn {
+  transition: all 0.2s ease;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.main-card a.btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* Portal links (if used elsewhere) */
+.portal-links {
+  list-style: none;
+  padding: 0;
+}
+
+.portal-links li {
+  margin: 15px 0;
+}
+
+.portal-links a {
+  display: inline-block;
+  text-decoration: none;
+  padding: 10px 20px;
+  background-color: #0d6efd;
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.portal-links a:hover {
+  background-color: #0b5ed7;
 }
