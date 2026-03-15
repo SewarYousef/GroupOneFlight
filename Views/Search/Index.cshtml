@@ -1,0 +1,18 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Search Flights";
+}
+
+<div class="container py-5 text-center">
+    <div class="card p-5 rounded shadow-sm bg-light">
+        <h1 class="display-4 mb-3">Search Flights</h1>
+        <p class="lead mb-4">Use the form below to search for flights.</p>
+
+        <form method="get" action="/Search/Index">
+            <div class="mb-3">
+                <input type="text" name="query" class="form-control" placeholder="Enter flight number or destination" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Search</button>
+        </form>
+    </div>
+</div>
