@@ -1,5 +1,13 @@
+# Build artifacts
 bin/
 obj/
-.vscode/.DS_Store
-Areas/Client/Views/_ViewStart.cshtml
+
+# SQLite database
+*.db
+
+# macOS junk
 .DS_Store
+
+# IDE folders (optional)
+.vs/
+``

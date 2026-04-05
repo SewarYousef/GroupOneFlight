@@ -1,11 +1,19 @@
+using Microsoft.EntityFrameworkCore;
+using GroupOneFlight.Areas.Airlines.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// MVC
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<AirBnBContext>(options =>
+    options.UseSqlite("Data Source=grouponeflight.db"));
+
+// ✅ Session (you are using HttpContext.Session)
+builder.Services.AddSession();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -13,19 +21,24 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
+
+// ✅ MUST be before MapControllerRoute
+app.UseSession();
 
 app.UseAuthorization();
 
-app.UseStaticFiles();
-
-// Route for AREAS (Admin, Client, Airline, etc.)
+// ✅ Areas routing
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+);
 
+// ✅ Default routing
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
 app.Run();
