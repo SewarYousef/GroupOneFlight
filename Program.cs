@@ -14,6 +14,27 @@ builder.Services.AddSession();
 
 var app = builder.Build();
 
+// ✅ SEED DATA - Add initial airlines
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AirBnBContext>();
+    context.Database.EnsureCreated();
+
+    // Check if airlines already exist
+    if (!context.Airlines.Any())
+    {
+        context.Airlines.AddRange(
+            new Airline { Name = "United Airlines" },
+            new Airline { Name = "American Airlines" },
+            new Airline { Name = "Delta Air Lines" },
+            new Airline { Name = "Southwest Airlines" },
+            new Airline { Name = "JetBlue Airways" },
+            new Airline { Name = "Alaska Airlines" }
+        );
+        context.SaveChanges();
+    }
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

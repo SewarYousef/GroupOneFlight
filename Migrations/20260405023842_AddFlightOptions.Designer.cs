@@ -3,6 +3,7 @@ using System;
 using GroupOneFlight.Areas.Airlines.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GroupOneFlight.Migrations
 {
     [DbContext(typeof(AirBnBContext))]
-    partial class AirBnBContextModelSnapshot : ModelSnapshot
+    [Migration("20260405023842_AddFlightOptions")]
+    partial class AddFlightOptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");

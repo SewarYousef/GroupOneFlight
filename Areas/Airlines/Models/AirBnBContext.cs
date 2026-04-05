@@ -11,5 +11,6 @@ namespace GroupOneFlight.Areas.Airlines.Models
 
         public DbSet<Flight> Flights => Set<Flight>();
         public DbSet<Airline> Airlines => Set<Airline>();
+        public DbSet<FlightOptions> FlightOptions => Set<FlightOptions>();
     }
 }

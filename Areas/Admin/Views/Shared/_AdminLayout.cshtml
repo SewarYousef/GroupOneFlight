@@ -11,7 +11,7 @@
            asp-area="Admin"
            asp-controller="Users"
            asp-action="Index">
-            GroupOneFlight - Admin
+            <i class="fas fa-shield-alt"></i> GroupOneFlight - Admin
         </a>
 
         <button class="navbar-toggler"
@@ -25,30 +25,33 @@
 
             <ul class="navbar-nav me-auto">
 
+                <!-- Dashboard -->
                 <li class="nav-item">
-                    <a class="nav-link"
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                        asp-area="Admin"
                        asp-controller="Users"
                        asp-action="Index">
-                        Dashboard
+                        <i class="fas fa-chart-line"></i> Dashboard
                     </a>
                 </li>
 
+                <!-- Manage Users -->
                 <li class="nav-item">
-                    <a class="nav-link"
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" && ViewContext.RouteData.Values["action"]?.ToString() == "Manage" ? "active" : "")"
                        asp-area="Admin"
                        asp-controller="Users"
                        asp-action="Manage">
-                        Manage
+                        <i class="fas fa-users"></i> Manage Users
                     </a>
                 </li>
 
+                <!-- Rights & Obligations -->
                 <li class="nav-item">
-                    <a class="nav-link"
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" && ViewContext.RouteData.Values["action"]?.ToString() == "Rights" ? "active" : "")"
                        asp-area="Admin"
                        asp-controller="Users"
                        asp-action="Rights">
-                        Rights & Obligations
+                        <i class="fas fa-book"></i> Rights & Obligations
                     </a>
                 </li>
 
@@ -60,7 +63,7 @@
                        asp-area=""
                        asp-controller="Home"
                        asp-action="Index">
-                        View Site
+                        <i class="fas fa-home"></i> View Site
                     </a>
                 </li>
             </ul>
@@ -68,6 +71,24 @@
         </div>
     </div>
 </nav>
+
+<style>
+    .navbar-nav .nav-link {
+        transition: all 0.3s ease;
+        margin-right: 0.5rem;
+    }
+
+    .navbar-nav .nav-link.active {
+        color: #0d6efd !important;
+        font-weight: bold;
+        border-bottom: 2px solid #0d6efd;
+        padding-bottom: 0.25rem;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: #0056b3 !important;
+    }
+</style>
 
 <div class="container mt-4">
     @RenderBody()

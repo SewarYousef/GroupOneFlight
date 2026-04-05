@@ -1,0 +1,123 @@
+@model GroupOneFlight.Areas.Airlines.ViewModels.DetailFlightViewModel
+
+@{
+    Layout = "~/Areas/Airlines/Views/Shared/_AirlineLayout.cshtml";
+    ViewData["Title"] = "Create Flight";
+}
+
+<div class="container py-5">
+    <h2>Create New Flight</h2>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-8">
+            <form method="post" action="@Url.Action("Create")">
+                @Html.AntiForgeryToken()
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <strong>Validation Errors:</strong>
+                        <ul>
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <div class="form-group mb-3">
+                    <label for="FlightNumber" class="form-label">Flight Number <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="FlightNumber" name="FlightNumber" placeholder="e.g., UA123" value="@Model.Flight?.FlightNumber" required />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="AirlineId" class="form-label">Airline <span class="text-danger">*</span></label>
+                    <select class="form-select" id="AirlineId" name="AirlineId" required>
+                        <option value="">Select Airline</option>
+                        @foreach (var airline in Model.Airlines ?? new List<Airline>())
+                        {
+                            <option value="@airline.Id" selected="@(Model.Flight?.AirlineId == airline.Id)">@airline.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="From" class="form-label">From <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="From" name="From" placeholder="e.g., New York" value="@Model.Flight?.From" required />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="To" class="form-label">To <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="To" name="To" placeholder="e.g., Los Angeles" value="@Model.Flight?.To" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="Date" class="form-label">Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="Date" name="Date" value="@Model.Flight?.Date.ToString("yyyy-MM-dd")" required />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="CabinType" class="form-label">Cabin Type <span class="text-danger">*</span></label>
+                            <select class="form-select" id="CabinType" name="CabinType" required>
+                                <option value="">Select Cabin Type</option>
+                                @foreach (var cabin in Model.CabinTypes ?? new List<string>())
+                                {
+                                    <option value="@cabin" selected="@(Model.Flight?.CabinType == cabin)">@cabin</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="DepartureTime" class="form-label">Departure Time <span class="text-danger">*</span></label>
+                            <input type="time" class="form-control" id="DepartureTime" name="DepartureTime" value="@Model.Flight?.DepartureTime" required />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="ArrivalTime" class="form-label">Arrival Time <span class="text-danger">*</span></label>
+                            <input type="time" class="form-control" id="ArrivalTime" name="ArrivalTime" value="@Model.Flight?.ArrivalTime" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Create Flight
+                    </button>
+                    <a href="@Url.Action("Manage")" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-info-circle"></i> Tips
+                    </h5>
+                    <ul class="small">
+                        <li>Flight numbers should be unique and identifiable (e.g., UA123)</li>
+                        <li>Select the appropriate airline from the dropdown</li>
+                        <li>Ensure departure time is before arrival time</li>
+                        <li>All fields marked with <span class="text-danger">*</span> are required</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -10,15 +10,32 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
     <!-- Site styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
 
     <style>
+        .navbar-nav .nav-link {
+            transition: all 0.3s ease;
+        }
+
         .navbar-nav .nav-link.active {
             color: #0d6efd !important;
             font-weight: bold;
-            border-bottom: 2px solid #0d6efd;
+            border-bottom: 3px solid #0d6efd;
+            padding-bottom: 0.5rem;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #0056b3 !important;
+        }
+
+        .breadcrumb-item.active {
+            color: #0d6efd;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -44,7 +61,7 @@
                asp-area=""
                asp-controller="Home"
                asp-action="Index">
-                GroupOneFlight Airline
+                <i class="fas fa-plane-departure"></i> GroupOneFlight Airline
             </a>
 
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between"
@@ -53,21 +70,45 @@
                 <!-- LEFT NAV -->
                 <ul class="navbar-nav flex-grow-1">
 
+                    <!-- Flights (flights list + manage) -->
                     <li class="nav-item">
                         <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Flights" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                            asp-area="Airlines"
                            asp-controller="Flights"
                            asp-action="Index">
-                            Flights
+                            <i class="fas fa-list"></i> Flights
                         </a>
                     </li>
 
+                    <!-- Manage Flights -->
                     <li class="nav-item">
-                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["area"]?.ToString() == "Admin" ? "active" : "")"
-                           asp-area="Admin"
-                           asp-controller="Users"
+                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Flights" && ViewContext.RouteData.Values["action"]?.ToString() == "Manage" ? "active" : "")"
+                           asp-area="Airlines"
+                           asp-controller="Flights"
+                           asp-action="Manage">
+                            <i class="fas fa-cog"></i> Manage
+                        </a>
+                    </li>
+
+                    <!-- Regulation -->
+                    <li class="nav-item">
+                        <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Flights" && ViewContext.RouteData.Values["action"]?.ToString() == "Regulation" ? "active" : "")"
+                           asp-area="Airlines"
+                           asp-controller="Flights"
+                           asp-action="Regulation">
+                            <i class="fas fa-book"></i> Regulations
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- RIGHT NAV -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark"
+                           asp-area=""
+                           asp-controller="Home"
                            asp-action="Index">
-                            Admin
+                            <i class="fas fa-home"></i> Home
                         </a>
                     </li>
                 </ul>

@@ -32,8 +32,10 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             if (string.IsNullOrEmpty(cabinType) && HttpContext.Session.GetString("SelectedCabin") != null)
                 cabinType = HttpContext.Session.GetString("SelectedCabin")!;
 
-            // Query flights with filters
-            var flightsQuery = _context.Flights.Include(f => f.Airline).AsQueryable();
+            // Query flights with filters - include both Airline and FlightOptions
+            var flightsQuery = _context.Flights
+                .Include(f => f.Airline)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(fromCity))
                 flightsQuery = flightsQuery.Where(f => f.From == fromCity);
@@ -46,6 +48,19 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
 
             var flights = flightsQuery.ToList();
 
+            // Load FlightOptions for pricing information
+            var flightOptions = _context.FlightOptions.ToList();
+            var minPriceByFlightId = new Dictionary<int, decimal>();
+
+            foreach (var option in flightOptions)
+            {
+                decimal minPrice = Math.Min(
+                    Math.Min(option.EconomyPrice, option.BusinessPrice),
+                    option.FirstClassPrice
+                );
+                minPriceByFlightId[option.FlightId] = minPrice;
+            }
+
             // Save filters in session
             HttpContext.Session.SetString("SelectedFrom", fromCity ?? string.Empty);
             HttpContext.Session.SetString("SelectedTo", toCity ?? string.Empty);
@@ -56,6 +71,7 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             {
                 Flights = flights,
                 Airlines = _context.Airlines.ToList(),
+                FlightOptions = flightOptions,
                 FromCities = _context.Flights
                                      .Select(f => f.From)
                                      .Where(f => f != null)
@@ -73,8 +89,12 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
                      .Where(c => c != null)
                      .Distinct()
                      .Select(c => c!)
-                     .ToList()
-
+                     .ToList(),
+                AircraftTypes = AircraftTypes.GetAllAircraftTypes(),
+                SelectedFrom = fromCity,
+                SelectedTo = toCity,
+                SelectedCabin = cabinType,
+                MinPriceByFlightId = minPriceByFlightId
             };
 
             ViewData["SelectedFrom"] = fromCity;
