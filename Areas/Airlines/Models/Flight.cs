@@ -1,4 +1,5 @@
 using System;
+using GroupOneFlight.Models;
 
 namespace GroupOneFlight.Areas.Airlines.Models
 {
@@ -8,6 +9,7 @@ namespace GroupOneFlight.Areas.Airlines.Models
         public string? FlightNumber { get; set; }
         public string? From { get; set; }
         public string? To { get; set; }
+        [FutureDate]
         public DateTime Date { get; set; }
         public string? DepartureTime { get; set; }
         public string? ArrivalTime { get; set; }

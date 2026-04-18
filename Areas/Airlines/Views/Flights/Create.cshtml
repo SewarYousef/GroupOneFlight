@@ -61,7 +61,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label for="Date" class="form-label">Date <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="Date" name="Date" value="@Model.Flight?.Date.ToString("yyyy-MM-dd")" required />
+                            <input type="date" class="form-control" id="Date" name="Date" value="@Model.Flight?.Date.ToString("yyyy-MM-dd")" data-validate-date required />
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -121,3 +121,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/date-validation.js" asp-append-version="true"></script>
+}
