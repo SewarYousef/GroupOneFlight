@@ -2,18 +2,17 @@ namespace GroupOneFlight.Areas.Airlines.Models
 {
     public static class CabinTypes
     {
-        public const string Economy = "Economy";
-        public const string Business = "Business";
-        public const string FirstClass = "First Class";
-
-        public static List<string> GetAll()
+        public const string BasicEconomy = "Basic Economy";
+        public const string Economy      = "Economy";
+        public const string EconomyPlus  = "Economy Plus";
+        public const string Business     = "Business";
+ 
+        public static List<string> GetAll() => new()
         {
-            return new List<string>
-            {
-                Economy,
-                Business,
-                FirstClass
-            };
-        }
+            BasicEconomy,
+            Economy,
+            EconomyPlus,
+            Business
+        };
     }
 }
