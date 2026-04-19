@@ -6,7 +6,7 @@ namespace GroupOneFlight.Areas.Airlines.Models
         public const string Business = "Business";
         public const string FirstClass = "First Class";
 
-        public static List<string> GetAllCabinTypes()
+        public static List<string> GetAll()
         {
             return new List<string>
             {
