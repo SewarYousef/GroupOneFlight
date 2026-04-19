@@ -9,7 +9,7 @@ namespace GroupOneFlight.Areas.Airlines.Models
         public const string AirbusA380 = "Airbus A380";
         public const string Embraer190 = "Embraer E190";
 
-        public static List<string> GetAllAircraftTypes()
+        public static List<string> GetAll()
         {
             return new List<string>
             {
