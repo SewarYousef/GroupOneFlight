@@ -5,8 +5,9 @@
     ViewData["Title"] = "Search Flights";
     var today      = DateTime.Today.ToString("yyyy-MM-dd");
     var tomorrow   = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
-    var dateVal    = Model.Filter.DepartureDate.HasValue
-                     ? Model.Filter.DepartureDate.Value.ToString("yyyy-MM-dd") : tomorrow;
+    var dateVal = Model.Filter.DepartureDate.HasValue
+              ? Model.Filter.DepartureDate.Value.ToString("yyyy-MM-dd")
+              : "";
 }
 
 <div class="container py-4">
