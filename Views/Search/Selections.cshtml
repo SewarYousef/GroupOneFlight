@@ -1,0 +1,87 @@
+@model List<GroupOneFlight.Areas.Airlines.Models.Flight>
+@using GroupOneFlight.Areas.Airlines.Models
+@{
+    ViewData["Title"] = "My Selections";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int selCount = (int)(ViewBag.SelectionCount ?? 0);
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-suitcase me-2"></i>My Selected Flights</h2>
+        <a asp-controller="Search" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Search
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-1"></i>
+            No flights selected.
+            <a asp-controller="Search" asp-action="Index" class="alert-link">Search for flights</a>.
+        </div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-end mb-3">
+            <form asp-controller="Search" asp-action="ClearAll" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger btn-sm"
+                        onclick="return confirm('Clear all selected flights?')">
+                    <i class="fas fa-trash me-1"></i> Clear All (@selCount)
+                </button>
+            </form>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Airline</th>
+                        <th>Flight #</th>
+                        <th>Route</th>
+                        <th>Date</th>
+                        <th>Departure</th>
+                        <th>Arrival</th>
+                        <th>Cabin</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var flight in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (flight.Airline != null && !string.IsNullOrEmpty(flight.Airline.ImageName))
+                                {
+                                    <img src="~/images/@flight.Airline.ImageName" alt="@flight.Airline.Name"
+                                         style="height:28px; object-fit:contain;" class="me-1" />
+                                }
+                                @(flight.Airline?.Name ?? "—")
+                            </td>
+                            <td><strong>@flight.FlightNumber</strong></td>
+                            <td>@flight.From @("→") @flight.To</td>
+                            <td>@flight.Date.ToString("MMM dd, yyyy")</td>
+                            <td>@(flight.DepartureTime ?? "—")</td>
+                            <td>@(flight.ArrivalTime ?? "—")</td>
+                            <td><span class="badge bg-secondary">@flight.CabinType</span></td>
+                            <td class="text-success fw-bold">$@flight.Price.ToString("0.00")</td>
+                            <td>
+                                <form asp-controller="Search" asp-action="RemoveFlight" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="flightId" value="@flight.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Remove this flight?')">
+                                        <i class="fas fa-times me-1"></i> Cancel
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
