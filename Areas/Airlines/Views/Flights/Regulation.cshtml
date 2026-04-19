@@ -1,0 +1,120 @@
+@{
+    Layout = "~/Areas/Airlines/Views/Shared/_AirlineLayout.cshtml";
+    ViewData["Title"] = "Regulations";
+}
+
+<div class="container py-5">
+
+    <div class="d-flex align-items-center mb-4">
+        <i class="fas fa-book fs-3 text-primary me-3"></i>
+        <h2 class="mb-0">Airline Regulations</h2>
+    </div>
+
+    @* Baggage Policy *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-suitcase me-2"></i> Baggage Policy
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="border rounded p-3 text-center">
+                        <i class="fas fa-briefcase fs-2 text-secondary mb-2"></i>
+                        <h6 class="fw-bold">Carry-On</h6>
+                        <p class="small mb-0">1 bag up to <strong>10 kg</strong><br />Max size: 55 x 40 x 20 cm</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded p-3 text-center">
+                        <i class="fas fa-suitcase-rolling fs-2 text-secondary mb-2"></i>
+                        <h6 class="fw-bold">Checked Bag</h6>
+                        <p class="small mb-0">1 bag up to <strong>23 kg</strong><br />Economy class included</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded p-3 text-center">
+                        <i class="fas fa-star fs-2 text-warning mb-2"></i>
+                        <h6 class="fw-bold">Business Class</h6>
+                        <p class="small mb-0">2 bags up to <strong>32 kg</strong> each<br />Priority handling included</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Check-In Rules *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-clock me-2"></i> Check-In Requirements
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>Online check-in</strong> opens 24 hours before departure and closes 2 hours before.
+                </li>
+                <li class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>Airport check-in</strong> must be completed at least 45 minutes before departure for domestic, 90 minutes for international.
+                </li>
+                <li class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>Boarding</strong> closes 20 minutes before scheduled departure. Late passengers will not be accommodated.
+                </li>
+                <li class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>Valid government-issued photo ID</strong> is required for all passengers at check-in.
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    @* Prohibited Items *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-danger text-white">
+            <i class="fas fa-ban me-2"></i> Prohibited Items
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-1"><i class="fas fa-times-circle text-danger me-2"></i>Flammable liquids and gases</li>
+                        <li class="mb-1"><i class="fas fa-times-circle text-danger me-2"></i>Explosives and fireworks</li>
+                        <li class="mb-1"><i class="fas fa-times-circle text-danger me-2"></i>Weapons and firearms (without prior approval)</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-1"><i class="fas fa-times-circle text-danger me-2"></i>Lithium batteries over 160Wh</li>
+                        <li class="mb-1"><i class="fas fa-times-circle text-danger me-2"></i>Corrosive substances</li>
+                        <li class="mb-1"><i class="fas fa-times-circle text-danger me-2"></i>Radioactive materials</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Passenger Conduct *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-user-shield me-2"></i> Passenger Conduct
+        </div>
+        <div class="card-body">
+            <p class="mb-2">All passengers are expected to comply with crew instructions at all times. The following behaviors may result in removal from the flight:</p>
+            <ul class="list-unstyled mb-0">
+                <li class="mb-1"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Disruptive or aggressive behavior toward crew or other passengers</li>
+                <li class="mb-1"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Smoking or vaping anywhere on the aircraft</li>
+                <li class="mb-1"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Tampering with safety equipment</li>
+                <li class="mb-1"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Using electronic devices during restricted phases of flight</li>
+            </ul>
+        </div>
+    </div>
+
+    @* Contact *@
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        For questions about regulations or special accommodations, contact our support team at
+        <strong>support@grouponeflight.com</strong> or call <strong>1-800-FLIGHT-1</strong>.
+    </div>
+
+</div>
