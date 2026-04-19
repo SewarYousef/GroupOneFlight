@@ -18,10 +18,9 @@ namespace GroupOneFlight.Controllers
         private FlightSession FlightSession => new(HttpContext.Session);
         private FlightCookie  FlightCookie  => new(_accessor);
 
-        // GET /Search/Index — filter panel + results on same page
+        // GET /Search/Index
         public IActionResult Index()
         {
-            // Seed session from 2-week cookie on first visit
             if (!FlightSession.GetSelectedFlights().Any())
             {
                 var cookieIds = FlightCookie.GetSelectedFlights();
@@ -40,6 +39,13 @@ namespace GroupOneFlight.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET /Search/ClearFilter — clears all filter values from session, redirects to Index
+        public IActionResult ClearFilter()
+        {
+            FlightSession.SetFilter(new FlightFilter());
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET /Search/Details/5
         public IActionResult Details(int id)
         {
@@ -51,7 +57,7 @@ namespace GroupOneFlight.Controllers
             return View(flight);
         }
 
-        // POST /Search/Select — add flight, PRG redirect
+        // POST /Search/Select — PRG
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Select(int flightId)
@@ -78,7 +84,7 @@ namespace GroupOneFlight.Controllers
             return View(flights);
         }
 
-        // POST /Search/RemoveFlight — PRG redirect
+        // POST /Search/RemoveFlight — PRG
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RemoveFlight(int flightId)
@@ -92,7 +98,7 @@ namespace GroupOneFlight.Controllers
             return RedirectToAction(nameof(Selections));
         }
 
-        // POST /Search/ClearAll — PRG redirect
+        // POST /Search/ClearAll — PRG
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult ClearAll()
@@ -107,11 +113,14 @@ namespace GroupOneFlight.Controllers
         {
             var query = _context.Flights.Include(f => f.Airline).AsQueryable();
 
-            if (!string.IsNullOrEmpty(filter.From))       query = query.Where(f => f.From == filter.From);
-            if (!string.IsNullOrEmpty(filter.To))         query = query.Where(f => f.To == filter.To);
-            if (filter.DepartureDate.HasValue)             query = query.Where(f => f.Date.Date == filter.DepartureDate.Value.Date);
+            if (!string.IsNullOrEmpty(filter.From))
+                query = query.Where(f => f.From == filter.From);
+            if (!string.IsNullOrEmpty(filter.To))
+                query = query.Where(f => f.To == filter.To);
+            if (filter.DepartureDate.HasValue)
+                query = query.Where(f => f.Date.Date == filter.DepartureDate.Value.Date);
             if (!string.IsNullOrEmpty(filter.CabinType) && filter.CabinType != "All")
-                                                           query = query.Where(f => f.CabinType == filter.CabinType);
+                query = query.Where(f => f.CabinType == filter.CabinType);
 
             return new SearchViewModel
             {
