@@ -16,17 +16,33 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         }
 
         // GET: Airlines/Flights/Index
-        public IActionResult Index()
+        // Accepts optional filter params from the query string (GET form submission)
+        public IActionResult Index(string? fromCity, string? toCity, string? cabinType)
         {
+            var query = _context.Flights.Include(f => f.Airline).AsQueryable();
+
+            if (!string.IsNullOrEmpty(fromCity))
+                query = query.Where(f => f.From == fromCity);
+
+            if (!string.IsNullOrEmpty(toCity))
+                query = query.Where(f => f.To == toCity);
+
+            if (!string.IsNullOrEmpty(cabinType))
+                query = query.Where(f => f.CabinType == cabinType);
+
             var viewModel = new FlightViewModel
             {
-                Flights       = _context.Flights.Include(f => f.Airline).ToList(),
-                FromCities    = _context.Flights.Select(f => f.From).Where(f => f != null).Distinct().Select(f => f!).OrderBy(c => c).ToList(),
-                ToCities      = _context.Flights.Select(f => f.To).Where(f => f != null).Distinct().Select(f => f!).OrderBy(c => c).ToList(),
+                Flights       = query.OrderBy(f => f.Date).ToList(),
+                Airlines      = _context.Airlines.ToList(),
+                FromCities    = _context.Flights.Select(f => f.From).Where(f => f != null).Distinct().OrderBy(c => c).Select(f => f!).ToList(),
+                ToCities      = _context.Flights.Select(f => f.To).Where(f => f != null).Distinct().OrderBy(c => c).Select(f => f!).ToList(),
                 CabinTypes    = CabinTypes.GetAll(),
                 AircraftTypes = AircraftTypes.GetAll(),
-                Airlines      = _context.Airlines.ToList()
+                SelectedFrom  = fromCity,
+                SelectedTo    = toCity,
+                SelectedCabin = cabinType
             };
+
             return View(viewModel);
         }
 
@@ -55,23 +71,21 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         }
 
         // POST: Airlines/Flights/Create
-        // Receives individual form fields to avoid model binding issues with the Flight model.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(
-            string? FlightNumber,
-            int     AirlineId,
-            string? From,
-            string? To,
+            string?  FlightNumber,
+            int      AirlineId,
+            string?  From,
+            string?  To,
             DateTime Date,
-            string? CabinType,
-            string? DepartureTime,
-            string? ArrivalTime,
-            string? AircraftType,
-            decimal Emission,
-            decimal Price)
+            string?  CabinType,
+            string?  DepartureTime,
+            string?  ArrivalTime,
+            string?  AircraftType,
+            decimal  Emission,
+            decimal  Price)
         {
-            // Manual validation
             if (string.IsNullOrEmpty(FlightNumber))
                 ModelState.AddModelError("FlightNumber", "Flight Number is required.");
             if (string.IsNullOrEmpty(From))
@@ -85,61 +99,27 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             if (Date <= DateTime.Today)
                 ModelState.AddModelError("Date", "Date must be after today.");
 
-            // Uniqueness check
             if (!string.IsNullOrEmpty(FlightNumber))
             {
                 bool isDuplicate = _context.Flights.Any(f =>
-                    f.FlightNumber == FlightNumber &&
-                    f.Date.Date    == Date.Date);
-
+                    f.FlightNumber == FlightNumber && f.Date.Date == Date.Date);
                 if (isDuplicate)
-                    ModelState.AddModelError("FlightNumber",
-                        "This FlightCode + Date combination already exists.");
+                    ModelState.AddModelError("FlightNumber", "This FlightCode + Date combination already exists.");
             }
 
             if (!ModelState.IsValid)
             {
                 var vm = new DetailFlightViewModel
                 {
-                    Flight = new Flight
-                    {
-                        FlightNumber  = FlightNumber,
-                        AirlineId     = AirlineId,
-                        From          = From,
-                        To            = To,
-                        Date          = Date,
-                        CabinType     = CabinType,
-                        DepartureTime = DepartureTime,
-                        ArrivalTime   = ArrivalTime,
-                        AircraftType  = AircraftType,
-                        Emission      = Emission,
-                        Price         = Price
-                    },
-                    Airlines      = _context.Airlines.ToList(),
-                    CabinTypes    = CabinTypes.GetAll(),
-                    AircraftTypes = AircraftTypes.GetAll()
+                    Flight = new Flight { FlightNumber = FlightNumber, AirlineId = AirlineId, From = From, To = To, Date = Date, CabinType = CabinType, DepartureTime = DepartureTime, ArrivalTime = ArrivalTime, AircraftType = AircraftType, Emission = Emission, Price = Price },
+                    Airlines = _context.Airlines.ToList(), CabinTypes = CabinTypes.GetAll(), AircraftTypes = AircraftTypes.GetAll()
                 };
                 return View(vm);
             }
 
-            var flight = new Flight
-            {
-                FlightNumber  = FlightNumber,
-                AirlineId     = AirlineId,
-                From          = From,
-                To            = To,
-                Date          = Date,
-                CabinType     = CabinType,
-                DepartureTime = DepartureTime,
-                ArrivalTime   = ArrivalTime,
-                AircraftType  = AircraftType,
-                Emission      = Emission,
-                Price         = Price
-            };
-
-            _context.Flights.Add(flight);
+            _context.Flights.Add(new Flight { FlightNumber = FlightNumber, AirlineId = AirlineId, From = From, To = To, Date = Date, CabinType = CabinType, DepartureTime = DepartureTime, ArrivalTime = ArrivalTime, AircraftType = AircraftType, Emission = Emission, Price = Price });
             _context.SaveChanges();
-            TempData["Confirmation"] = $"Flight {flight.FlightNumber} was created successfully.";
+            TempData["Confirmation"] = $"Flight {FlightNumber} was created successfully.";
             return RedirectToAction(nameof(Manage));
         }
 
@@ -147,7 +127,6 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         public IActionResult Edit(int? id)
         {
             if (id == null) return NotFound();
-
             var flight = _context.Flights.Find(id);
             if (flight == null) return NotFound();
 
@@ -165,18 +144,18 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(
-            int     id,
-            string? FlightNumber,
-            int     AirlineId,
-            string? From,
-            string? To,
+            int      id,
+            string?  FlightNumber,
+            int      AirlineId,
+            string?  From,
+            string?  To,
             DateTime Date,
-            string? CabinType,
-            string? DepartureTime,
-            string? ArrivalTime,
-            string? AircraftType,
-            decimal Emission,
-            decimal Price)
+            string?  CabinType,
+            string?  DepartureTime,
+            string?  ArrivalTime,
+            string?  AircraftType,
+            decimal  Emission,
+            decimal  Price)
         {
             if (string.IsNullOrEmpty(FlightNumber))
                 ModelState.AddModelError("FlightNumber", "Flight Number is required.");
@@ -191,41 +170,20 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             if (Date <= DateTime.Today)
                 ModelState.AddModelError("Date", "Date must be after today.");
 
-            // Uniqueness check (exclude current record)
             if (!string.IsNullOrEmpty(FlightNumber))
             {
                 bool isDuplicate = _context.Flights.Any(f =>
-                    f.FlightNumber == FlightNumber &&
-                    f.Date.Date    == Date.Date    &&
-                    f.Id           != id);
-
+                    f.FlightNumber == FlightNumber && f.Date.Date == Date.Date && f.Id != id);
                 if (isDuplicate)
-                    ModelState.AddModelError("FlightNumber",
-                        "This FlightCode + Date combination already exists.");
+                    ModelState.AddModelError("FlightNumber", "This FlightCode + Date combination already exists.");
             }
 
             if (!ModelState.IsValid)
             {
                 var vm = new DetailFlightViewModel
                 {
-                    Flight = new Flight
-                    {
-                        Id            = id,
-                        FlightNumber  = FlightNumber,
-                        AirlineId     = AirlineId,
-                        From          = From,
-                        To            = To,
-                        Date          = Date,
-                        CabinType     = CabinType,
-                        DepartureTime = DepartureTime,
-                        ArrivalTime   = ArrivalTime,
-                        AircraftType  = AircraftType,
-                        Emission      = Emission,
-                        Price         = Price
-                    },
-                    Airlines      = _context.Airlines.ToList(),
-                    CabinTypes    = CabinTypes.GetAll(),
-                    AircraftTypes = AircraftTypes.GetAll()
+                    Flight = new Flight { Id = id, FlightNumber = FlightNumber, AirlineId = AirlineId, From = From, To = To, Date = Date, CabinType = CabinType, DepartureTime = DepartureTime, ArrivalTime = ArrivalTime, AircraftType = AircraftType, Emission = Emission, Price = Price },
+                    Airlines = _context.Airlines.ToList(), CabinTypes = CabinTypes.GetAll(), AircraftTypes = AircraftTypes.GetAll()
                 };
                 return View(vm);
             }
@@ -233,17 +191,10 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             var flight = _context.Flights.Find(id);
             if (flight == null) return NotFound();
 
-            flight.FlightNumber  = FlightNumber;
-            flight.AirlineId     = AirlineId;
-            flight.From          = From;
-            flight.To            = To;
-            flight.Date          = Date;
-            flight.CabinType     = CabinType;
-            flight.DepartureTime = DepartureTime;
-            flight.ArrivalTime   = ArrivalTime;
-            flight.AircraftType  = AircraftType;
-            flight.Emission      = Emission;
-            flight.Price         = Price;
+            flight.FlightNumber = FlightNumber; flight.AirlineId = AirlineId; flight.From = From;
+            flight.To = To; flight.Date = Date; flight.CabinType = CabinType;
+            flight.DepartureTime = DepartureTime; flight.ArrivalTime = ArrivalTime;
+            flight.AircraftType = AircraftType; flight.Emission = Emission; flight.Price = Price;
 
             _context.Flights.Update(flight);
             _context.SaveChanges();
@@ -255,10 +206,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         public IActionResult Delete(int? id)
         {
             if (id == null) return NotFound();
-
             var flight = _context.Flights.Include(f => f.Airline).FirstOrDefault(f => f.Id == id);
             if (flight == null) return NotFound();
-
             return View(flight);
         }
 
@@ -278,23 +227,15 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         }
 
         // GET: Airlines/Flights/Regulation
-        public IActionResult Regulation()
-        {
-            return View();
-        }
+        public IActionResult Regulation() => View();
 
-        // Remote validation endpoint for FlightNumber uniqueness
+        // Remote validation
         [AcceptVerbs("GET", "POST")]
         public IActionResult IsFlightCodeDateUnique(string? flightNumber, DateTime? date, int id = 0)
         {
-            if (string.IsNullOrEmpty(flightNumber) || date == null)
-                return Json(true);
-
+            if (string.IsNullOrEmpty(flightNumber) || date == null) return Json(true);
             bool isDuplicate = _context.Flights.Any(f =>
-                f.FlightNumber == flightNumber &&
-                f.Date.Date    == date.Value.Date &&
-                f.Id           != id);
-
+                f.FlightNumber == flightNumber && f.Date.Date == date.Value.Date && f.Id != id);
             return Json(!isDuplicate);
         }
 
