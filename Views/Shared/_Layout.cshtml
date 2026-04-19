@@ -17,9 +17,6 @@
             padding-bottom: 0.25rem;
         }
         .navbar-nav .nav-link:hover { color: #0056b3 !important; }
-        html, body { height: 100%; }
-        body { display: flex; flex-direction: column; }
-        .container { flex: 1; }
     </style>
 </head>
 <body>
@@ -27,45 +24,35 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
-
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                 GroupOneFlight
             </a>
-
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target=".navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-
                 <ul class="navbar-nav flex-grow-1">
-
                     <li class="nav-item">
                         <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                            asp-area="" asp-controller="Home" asp-action="Index">
                             <i class="fas fa-home"></i> Dashboard
                         </a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Search" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                            asp-area="" asp-controller="Search" asp-action="Index">
                             <i class="fas fa-search"></i> Search
                         </a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")"
                            asp-area="" asp-controller="Home" asp-action="Privacy">
                             <i class="fas fa-lock"></i> Privacy
                         </a>
                     </li>
-
                 </ul>
-
                 <ul class="navbar-nav ms-auto">
-
                     @{
                         int badgeCount = ViewBag.SelectionCount != null ? (int)ViewBag.SelectionCount : 0;
                     }
@@ -82,33 +69,30 @@
                             </a>
                         </li>
                     }
-
                     <li class="nav-item">
                         <a class="nav-link text-dark @(ViewContext.RouteData.Values["area"]?.ToString() == "Admin" ? "active" : "")"
                            asp-area="Admin" asp-controller="Users" asp-action="Index">
                             <i class="fas fa-shield-alt"></i> Admin
                         </a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link text-dark @(ViewContext.RouteData.Values["area"]?.ToString() == "Airlines" ? "active" : "")"
                            asp-area="Airlines" asp-controller="Flights" asp-action="Index">
                             <i class="fas fa-plane-departure"></i> Airline
                         </a>
                     </li>
-
                 </ul>
             </div>
         </div>
     </nav>
 </header>
 
-<div class="container">
-    <main role="main" class="pb-3">
+<main role="main" class="pb-3 flex-grow-1">
+    <div class="container">
         @await Html.PartialAsync("_TempDataConfirmation")
         @RenderBody()
-    </main>
-</div>
+    </div>
+</main>
 
 <footer class="border-top footer text-muted">
     <div class="container">
