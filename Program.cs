@@ -3,24 +3,28 @@ using GroupOneFlight.Areas.Airlines.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// MVC
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<AirBnBContext>(options =>
     options.UseSqlite("Data Source=grouponeflight.db"));
 
-// ✅ Session (you are using HttpContext.Session)
-builder.Services.AddSession();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout        = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly    = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite    = SameSiteMode.Lax;
+});
 
 var app = builder.Build();
 
-// ✅ SEED DATA - Add initial airlines
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AirBnBContext>();
-    context.Database.EnsureCreated();
+    context.Database.Migrate();
 
-    // Check if airlines already exist
     if (!context.Airlines.Any())
     {
         context.Airlines.AddRange(
@@ -44,22 +48,15 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
-// ✅ MUST be before MapControllerRoute
 app.UseSession();
-
 app.UseAuthorization();
 
-// ✅ Areas routing
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-);
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
-// ✅ Default routing
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}"
-);
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
