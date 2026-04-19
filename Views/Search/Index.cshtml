@@ -1,24 +1,171 @@
+@model GroupOneFlight.Areas.Airlines.Models.SearchViewModel
+@using GroupOneFlight.Areas.Airlines.Models
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Search Flights";
+    var today      = DateTime.Today.ToString("yyyy-MM-dd");
+    var tomorrow   = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
+    var dateVal    = Model.Filter.DepartureDate.HasValue
+                     ? Model.Filter.DepartureDate.Value.ToString("yyyy-MM-dd") : tomorrow;
 }
 
-<div class="container py-5 text-center">
+<div class="container py-4">
+    <h2 class="mb-4"><i class="fas fa-search me-2"></i>Search Flights</h2>
 
-    <div class="card p-5 rounded shadow-sm bg-light">
-        <h1 class="display-4 mb-3">Search Flights</h1>
-        <p class="lead mb-4">Use the form below to search for flights. (Phase 1 placeholder)</p>
+    <div class="row g-4">
 
-        <form method="get" action="/Search/Index">
-            <div class="mb-3">
-                <input type="text" name="query" class="form-control" placeholder="Enter flight number or destination" />
+        <div class="col-lg-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-filter me-1"></i> Filter Flights
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Search" asp-action="Index" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">From</label>
+                            <select name="From" class="form-select">
+                                <option value="">-- Any City --</option>
+                                @foreach (var city in Model.FromCities)
+                                {
+                                    if (Model.Filter.From == city)
+                                    {
+                                        <option value="@city" selected="selected">@city</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@city">@city</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">To</label>
+                            <select name="To" class="form-select">
+                                <option value="">-- Any City --</option>
+                                @foreach (var city in Model.ToCities)
+                                {
+                                    if (Model.Filter.To == city)
+                                    {
+                                        <option value="@city" selected="selected">@city</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@city">@city</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Departure Date</label>
+                            <input type="date" name="DepartureDate" class="form-control"
+                                   value="@dateVal" min="@today" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Cabin Type</label>
+                            <select name="CabinType" class="form-select">
+                                @{
+                                    bool allSelected = string.IsNullOrEmpty(Model.Filter.CabinType) || Model.Filter.CabinType == "All";
+                                }
+                                @if (allSelected)
+                                {
+                                    <option value="All" selected="selected">All</option>
+                                }
+                                else
+                                {
+                                    <option value="All">All</option>
+                                }
+                                @foreach (var cabin in SearchViewModel.GetCabinTypes())
+                                {
+                                    if (Model.Filter.CabinType == cabin)
+                                    {
+                                        <option value="@cabin" selected="selected">@cabin</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@cabin">@cabin</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i> Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-lg">Search</button>
-        </form>
+        </div>
 
-        <div class="mt-4">
-            <p>Phase 1: Other links and results will be implemented later.</p>
+        <div class="col-lg-9">
+
+            @if (Model.SelectionCount > 0)
+            {
+                <div class="d-flex justify-content-end mb-3">
+                    <a asp-controller="Search" asp-action="Selections" class="btn btn-success">
+                        <i class="fas fa-suitcase me-1"></i> My Selections
+                        <span class="badge bg-white text-success ms-1">@Model.SelectionCount</span>
+                    </a>
+                </div>
+            }
+
+            @if (!Model.Flights.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-1"></i>
+                    No flights found. Try adjusting the filters.
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-3">@Model.Flights.Count flight(s) found</p>
+
+                @foreach (var flight in Model.Flights)
+                {
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 text-center">
+                                    @if (flight.Airline != null && !string.IsNullOrEmpty(flight.Airline.ImageName))
+                                    {
+                                        <img src="~/images/@flight.Airline.ImageName" alt="@flight.Airline.Name"
+                                             style="height:40px; object-fit:contain;" class="mb-1" /><br />
+                                    }
+                                    <small class="text-muted">@(flight.Airline?.Name ?? "—")</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold fs-5">@flight.From</span>
+                                        <i class="fas fa-arrow-right text-muted"></i>
+                                        <span class="fw-bold fs-5">@flight.To</span>
+                                    </div>
+                                    <small class="text-muted">@(flight.DepartureTime ?? "—") – @(flight.ArrivalTime ?? "—")</small>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <div>@flight.Date.ToString("MMM dd, yyyy")</div>
+                                    <span class="badge bg-secondary">@flight.CabinType</span>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <div class="text-success fw-bold fs-5">$@flight.Price.ToString("0.00")</div>
+                                    <small class="text-muted">@flight.Emission kg CO2</small>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <a asp-controller="Search" asp-action="Details" asp-route-id="@flight.Id"
+                                       class="btn btn-outline-primary btn-sm">
+                                        Details <i class="fas fa-chevron-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
         </div>
     </div>
-
 </div>
