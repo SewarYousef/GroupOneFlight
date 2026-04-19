@@ -6,6 +6,15 @@ namespace GroupOneFlight.Areas.Airlines.Models
     public class Flight
     {
         public int Id { get; set; }
+
+        [Remote(
+            action: "IsFlightCodeDateUnique",
+            controller: "Flights",
+            areaName: "Airlines",
+            AdditionalFields = "Date,Id",
+            ErrorMessage = "This FlightCode + Date combination already exists..."
+        )]
+                
         public string? FlightNumber { get; set; }
         public string? From { get; set; }
         public string? To { get; set; }
