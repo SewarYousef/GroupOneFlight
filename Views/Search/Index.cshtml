@@ -3,11 +3,14 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Search Flights";
-    var today      = DateTime.Today.ToString("yyyy-MM-dd");
-    var tomorrow   = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
+    var today   = DateTime.Today.ToString("yyyy-MM-dd");
     var dateVal = Model.Filter.DepartureDate.HasValue
-              ? Model.Filter.DepartureDate.Value.ToString("yyyy-MM-dd")
-              : "";
+                  ? Model.Filter.DepartureDate.Value.ToString("yyyy-MM-dd")
+                  : "";
+    bool hasActiveFilter = !string.IsNullOrEmpty(Model.Filter.From)
+                        || !string.IsNullOrEmpty(Model.Filter.To)
+                        || Model.Filter.DepartureDate.HasValue
+                        || (!string.IsNullOrEmpty(Model.Filter.CabinType) && Model.Filter.CabinType != "All");
 }
 
 <div class="container py-4">
@@ -17,8 +20,16 @@
 
         <div class="col-lg-3">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-filter me-1"></i> Filter Flights
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-filter me-1"></i> Filter Flights</span>
+                    @if (hasActiveFilter)
+                    {
+                        <a asp-controller="Search" asp-action="ClearFilter"
+                           class="btn btn-sm btn-light text-primary py-0 px-2"
+                           title="Clear all filters">
+                            <i class="fas fa-times me-1"></i>Clear
+                        </a>
+                    }
                 </div>
                 <div class="card-body">
                     <form asp-controller="Search" asp-action="Index" method="post">
@@ -64,6 +75,7 @@
                             <label class="form-label fw-semibold">Departure Date</label>
                             <input type="date" name="DepartureDate" class="form-control"
                                    value="@dateVal" min="@today" />
+                            <small class="text-muted">Leave blank to search all dates</small>
                         </div>
 
                         <div class="mb-3">
@@ -94,10 +106,17 @@
                             </select>
                         </div>
 
-                        <div class="d-grid">
+                        <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-search me-1"></i> Search
                             </button>
+                            @if (hasActiveFilter)
+                            {
+                                <a asp-controller="Search" asp-action="ClearFilter"
+                                   class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i> Clear Filters
+                                </a>
+                            }
                         </div>
                     </form>
                 </div>
@@ -146,7 +165,9 @@
                                         <i class="fas fa-arrow-right text-muted"></i>
                                         <span class="fw-bold fs-5">@flight.To</span>
                                     </div>
-                                    <small class="text-muted">@(flight.DepartureTime ?? "—") – @(flight.ArrivalTime ?? "—")</small>
+                                    <small class="text-muted">
+                                        @(flight.DepartureTime ?? "—") – @(flight.ArrivalTime ?? "—")
+                                    </small>
                                 </div>
                                 <div class="col-md-2 text-center">
                                     <div>@flight.Date.ToString("MMM dd, yyyy")</div>
