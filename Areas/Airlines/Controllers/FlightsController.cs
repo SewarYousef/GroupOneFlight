@@ -16,10 +16,13 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         }
 
         // Airline Dashboard (Flights page)
-        public IActionResult Index()
-        {
-            var viewModel = new FlightViewModel
+            public IActionResult Index(string? fromCity, string? toCity, string? cabinType)
             {
+                var query = _context.Flights.Include(f => f.Airline).AsQueryable();
+    
+                if (!string.IsNullOrEmpty(fromCity))  query = query.Where(f => f.From == fromCity);
+                if (!string.IsNullOrEmpty(toCity))    query = query.Where(f => f.To == toCity);
+                if (!string.IsNullOrEmpty(cabinType)) query = query.Where(f => f.CabinType == cabinType);
                 Flights = _context.Flights
                                   .Include(f => f.Airline)
                                   .ToList(),
@@ -54,14 +57,12 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         // Manage Flights (List view)
         public IActionResult Manage()
         {
-            var flights = _context.Flights
-                                  .Include(f => f.Airline)
-                                  .OrderByDescending(f => f.Date)
-                                  .ToList();
-
             var viewModel = new FlightViewModel
             {
-                Flights = flights,
+                Flights = _context.Flights
+                                  .Include(f => f.Airline)
+                                  .OrderByDescending(f => f.Date)
+                                  .ToList(),
                 Airlines = _context.Airlines.ToList()
             };
 
@@ -87,14 +88,22 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Flight flight)
         {
-            if (string.IsNullOrEmpty(flight.FlightNumber))
-                ModelState.AddModelError("FlightNumber", "Flight Number is required.");
-            if (string.IsNullOrEmpty(flight.From))
-                ModelState.AddModelError("From", "From city is required.");
-            if (string.IsNullOrEmpty(flight.To))
-                ModelState.AddModelError("To", "To city is required.");
-            if (flight.AirlineId <= 0)
-                ModelState.AddModelError("AirlineId", "Airline is required.");
+            bool alreadyCheckedByRemote = TempData["RemoteValidated"] as bool? == true;
+
+            if (!alreadyCheckedByRemote && !string.IsNullOrEmpty(flight.FlightNumber))
+            {
+                bool isDuplicate = _context.Flights.Any(f =>
+                    f.FlightNumber == flight.FlightNumber &&
+                    f.Date.Date == flight.Date.Date &&
+                    f.Id != flight.Id);
+
+                if (isDuplicate)
+                {
+                    ModelState.AddModelError("FlightNumber",
+                        "This FlightCode + Date combination already exists. " +
+                        "Please use a different flight code or date.");
+                }
+            }
 
             if (ModelState.IsValid)
             {
@@ -102,16 +111,17 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
                 _context.SaveChanges();
                 
                 // POST-Redirect-Get: Redirect to Manage after successful creation
-                return RedirectToAction("Manage", new { message = "Flight created successfully." });
-            }
+                TempData["Confirmation"] = $"Flight {flight.FlightNumber} was created successfully.";
+                
+                return RedirectToAction(nameof(Manage));            }
 
             // If validation fails, re-render the form with error messages
             var viewModel = new DetailFlightViewModel
             {
                 Flight = flight,
                 Airlines = _context.Airlines.ToList(),
-                CabinTypes = CabinTypes.GetAllCabinTypes(),
-                AircraftTypes = AircraftTypes.GetAllAircraftTypes()
+                CabinTypes = CabinTypes.GetAll(),
+                AircraftTypes = AircraftTypes.GetAll()
             };
 
             return View(viewModel);
@@ -146,14 +156,22 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             if (id != flight.Id)
                 return NotFound();
 
-            if (string.IsNullOrEmpty(flight.FlightNumber))
-                ModelState.AddModelError("FlightNumber", "Flight Number is required.");
-            if (string.IsNullOrEmpty(flight.From))
-                ModelState.AddModelError("From", "From city is required.");
-            if (string.IsNullOrEmpty(flight.To))
-                ModelState.AddModelError("To", "To city is required.");
-            if (flight.AirlineId <= 0)
-                ModelState.AddModelError("AirlineId", "Airline is required.");
+            bool alreadyCheckedByRemote = TempData["RemoteValidated"] as bool? == true;
+
+            if (!alreadyCheckedByRemote && !string.IsNullOrEmpty(flight.FlightNumber))
+            {
+                bool isDuplicate = _context.Flights.Any(f =>
+                    f.FlightNumber == flight.FlightNumber &&
+                    f.Date.Date == flight.Date.Date &&
+                    f.Id != flight.Id);   // exclude the flight being edited
+
+                if (isDuplicate)
+                {
+                    ModelState.AddModelError("FlightNumber",
+                        "This FlightCode + Date combination already exists. " +
+                        "Please use a different flight code or date.");
+                }
+            }
 
             if (ModelState.IsValid)
             {
@@ -163,7 +181,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
                     _context.SaveChanges();
 
                     // POST-Redirect-Get: Redirect to Manage after successful edit
-                    return RedirectToAction("Manage", new { message = "Flight updated successfully." });
+                    TempData["Confirmation"] = $"Flight {flight.FlightNumber} was updated successfully.";
+                    return RedirectToAction(nameof(Manage));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -178,8 +197,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             {
                 Flight = flight,
                 Airlines = _context.Airlines.ToList(),
-                CabinTypes = CabinTypes.GetAllCabinTypes(),
-                AircraftTypes = AircraftTypes.GetAllAircraftTypes()
+                CabinTypes = CabinTypes.GetAll(),
+                AircraftTypes = AircraftTypes.GetAll()
             };
 
             return View(viewModel);
@@ -221,7 +240,34 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         // Regulation Information (Routing test)
         public IActionResult Regulation()
         {
-            return Content("Airline Regulation Page");
+            return View();
+        }
+
+
+        [AcceptVerbs("GET", "POST")]
+        public IActionResult IsFlightCodeDateUnique(
+            string? flightNumber,
+            DateTime? date,
+            int id = 0)
+        {
+            if (string.IsNullOrEmpty(flightNumber) || date == null)
+                return Json(true); // Let other validators handle empty values
+
+            bool isDuplicate = _context.Flights.Any(f =>
+                f.FlightNumber == flightNumber &&
+                f.Date.Date == date.Value.Date &&
+                f.Id != id);
+
+            if (isDuplicate)
+            {
+                // Do NOT set TempData here — this is the AJAX path.
+                // TempData is only meaningful for the server-side POST fallback.
+                return Json(false); // false → jQuery shows the [Remote] ErrorMessage
+            }
+
+            // Mark as validated so the POST action can skip the duplicate check
+            TempData["RemoteValidated"] = true;
+            return Json(true);
         }
 
         private bool FlightExists(int id)
