@@ -90,7 +90,7 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
                      .Distinct()
                      .Select(c => c!)
                      .ToList(),
-                AircraftTypes = AircraftTypes.GetAllAircraftTypes(),
+                AircraftTypes = AircraftTypes.GetAll(),
                 SelectedFrom = fromCity,
                 SelectedTo = toCity,
                 SelectedCabin = cabinType,
