@@ -44,7 +44,7 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
                                      .Distinct()
                                      .Select(c => c!)
                                      .ToList(),
-                AircraftTypes = AircraftTypes.GetAllAircraftTypes(),
+                AircraftTypes = AircraftTypes.GetAll(),
                 Airlines = _context.Airlines.ToList()
             };
 
@@ -75,8 +75,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             {
                 Flight        = new Flight(),
                 Airlines      = _context.Airlines.ToList(),
-                CabinTypes    = CabinTypes.GetAllCabinTypes(),
-                AircraftTypes = AircraftTypes.GetAllAircraftTypes()
+                CabinTypes    = CabinTypes.GetAll(),
+                AircraftTypes = AircraftTypes.GetAll()
             };
             return View(viewModel);
         }
@@ -122,8 +122,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             {
                 Flight        = flight,
                 Airlines      = _context.Airlines.ToList(),
-                CabinTypes    = CabinTypes.GetAllCabinTypes(),
-                AircraftTypes = AircraftTypes.GetAllAircraftTypes()
+                CabinTypes    = CabinTypes.GetAll(),
+                AircraftTypes = AircraftTypes.GetAll()
             };
             return View(viewModel);
         }
@@ -140,8 +140,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             {
                 Flight        = flight,
                 Airlines      = _context.Airlines.ToList(),
-                CabinTypes    = CabinTypes.GetAllCabinTypes(),
-                AircraftTypes = AircraftTypes.GetAllAircraftTypes()
+                CabinTypes    = CabinTypes.GetAll(),
+                AircraftTypes = AircraftTypes.GetAll()
             };
             return View(viewModel);
         }
@@ -197,8 +197,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             {
                 Flight        = flight,
                 Airlines      = _context.Airlines.ToList(),
-                CabinTypes    = CabinTypes.GetAllCabinTypes(),
-                AircraftTypes = AircraftTypes.GetAllAircraftTypes()
+                CabinTypes    = CabinTypes.GetAll(),
+                AircraftTypes = AircraftTypes.GetAll()
             };
             return View(viewModel);
         }
