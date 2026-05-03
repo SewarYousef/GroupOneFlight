@@ -1,4 +1,6 @@
-@model GroupOneFlight.Areas.Airlines.Models.Flight
+@model GroupOneFlight.Models.ViewModels.DetailFlightViewModel
+@using GroupOneFlight.Models.DomainModels
+@using GroupOneFlight.Models.ViewModels
 
 @{
     Layout = "~/Areas/Airlines/Views/Shared/_AirlineLayout.cshtml";
@@ -11,6 +13,7 @@
 
     <div class="row">
         <div class="col-md-8">
+
             <div class="alert alert-warning" role="alert">
                 <i class="fas fa-exclamation-triangle"></i>
                 <strong>Warning:</strong> This action cannot be undone. Are you sure you want to delete this flight?
@@ -20,43 +23,66 @@
                 <div class="card-header bg-dark text-white">
                     <h5 class="mb-0">Flight Details</h5>
                 </div>
+
                 <div class="card-body">
                     <dl class="row">
+
                         <dt class="col-sm-3">Flight Number:</dt>
-                        <dd class="col-sm-9"><strong>@(Model.FlightNumber ?? "N/A")</strong></dd>
+                        <dd class="col-sm-9">
+                            <strong>@(Model.Flight?.FlightCode ?? "N/A")</strong>
+                        </dd>
 
                         <dt class="col-sm-3">Airline:</dt>
-                        <dd class="col-sm-9">@(Model.Airline?.Name ?? "N/A")</dd>
+                        <dd class="col-sm-9">
+                            @(Model.Flight?.Airline?.Name ?? "N/A")
+                        </dd>
 
                         <dt class="col-sm-3">Route:</dt>
-                        <dd class="col-sm-9">@(Model.From ?? "N/A") → @(Model.To ?? "N/A")</dd>
+                        <dd class="col-sm-9">
+                            @(Model.Flight?.From ?? "N/A") → @(Model.Flight?.To ?? "N/A")
+                        </dd>
 
                         <dt class="col-sm-3">Date:</dt>
-                        <dd class="col-sm-9">@Model.Date.ToShortDateString()</dd>
+                        <dd class="col-sm-9">
+                            @(Model.Flight?.Date.ToShortDateString() ?? "N/A")
+                        </dd>
 
                         <dt class="col-sm-3">Departure Time:</dt>
-                        <dd class="col-sm-9">@(Model.DepartureTime ?? "N/A")</dd>
+                        <dd class="col-sm-9">
+                            @(Model.Flight?.DepartureTime ?? "N/A")
+                        </dd>
 
                         <dt class="col-sm-3">Arrival Time:</dt>
-                        <dd class="col-sm-9">@(Model.ArrivalTime ?? "N/A")</dd>
+                        <dd class="col-sm-9">
+                            @(Model.Flight?.ArrivalTime ?? "N/A")
+                        </dd>
 
                         <dt class="col-sm-3">Cabin Type:</dt>
-                        <dd class="col-sm-9">@(Model.CabinType ?? "N/A")</dd>
+                        <dd class="col-sm-9">
+                            @(Model.Flight?.CabinType ?? "N/A")
+                        </dd>
+
                     </dl>
                 </div>
             </div>
 
-            <form method="post" action="@Url.Action("Delete", new { id = Model.Id })">
+            <form method="post" action="@Url.Action("Delete", "Flights", new { area = "Airlines", id = Model.Flight?.Id })">
                 @Html.AntiForgeryToken()
+
                 <div class="form-group">
-                    <button type="submit" class="btn btn-danger btn-lg" onclick="return confirm('Are you absolutely sure?')">
+                    <button type="submit"
+                            class="btn btn-danger btn-lg"
+                            onclick="return confirm('Are you absolutely sure?')">
                         <i class="fas fa-trash"></i> Delete Flight
                     </button>
-                    <a href="@Url.Action("Manage")" class="btn btn-secondary btn-lg">
+
+                    <a href="@Url.Action("Manage", "Flights", new { area = "Airlines" })"
+                       class="btn btn-secondary btn-lg">
                         <i class="fas fa-times"></i> Keep Flight
                     </a>
                 </div>
             </form>
+
         </div>
 
         <div class="col-md-4">
@@ -72,5 +98,6 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>

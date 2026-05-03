@@ -1,5 +1,6 @@
-@model GroupOneFlight.Areas.Airlines.ViewModels.FlightViewModel
-@using GroupOneFlight.Areas.Airlines.Models
+@model GroupOneFlight.Models.ViewModels.FlightIndexViewModel
+@using GroupOneFlight.Models.DomainModels
+@using GroupOneFlight.Models.ViewModels
 @{
     Layout = "~/Areas/Airlines/Views/Shared/_AirlineLayout.cshtml";
     ViewData["Title"] = "Flights";
@@ -125,7 +126,7 @@
                     foreach (var flight in Model.Flights)
                     {
                         <tr>
-                            <td><strong>@(flight.FlightNumber ?? "N/A")</strong></td>
+                            <td><strong>@(flight.FlightCode ?? "N/A")</strong></td>
                             <td>
                                 @if (flight.Airline != null && !string.IsNullOrEmpty(flight.Airline.ImageName))
                                 {

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-namespace GroupOneFlight.Areas.Airlines.ViewModels
+namespace GroupOneFlight.Models.ViewModels
 {
     public class ErrorViewModel
     {

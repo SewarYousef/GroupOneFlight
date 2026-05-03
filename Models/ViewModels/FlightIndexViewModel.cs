@@ -1,27 +1,25 @@
 using System.Collections.Generic;
-using GroupOneFlight.Areas.Airlines.Models;
+using GroupOneFlight.Models.DomainModels;
 
-namespace GroupOneFlight.Areas.Airlines.ViewModels
+namespace GroupOneFlight.Models.ViewModels
 {
-    public class FlightViewModel
+    public class FlightIndexViewModel
     {
-        // Core entities
+        // Main flight list
         public List<Flight> Flights { get; set; } = new();
-        public List<Airline> Airlines { get; set; } = new();
+
         public List<FlightOptions> FlightOptions { get; set; } = new();
 
-        // Filter lists for dropdowns
+        public Dictionary<int, decimal> MinPriceByFlightId { get; set; } = new();
+
+        // Filters (dropdowns)
         public List<string> FromCities { get; set; } = new();
         public List<string> ToCities { get; set; } = new();
         public List<string> CabinTypes { get; set; } = new();
-        public List<string> AircraftTypes { get; set; } = new();
 
-        // Current filter values
+        // Selected filters
         public string? SelectedFrom { get; set; }
         public string? SelectedTo { get; set; }
         public string? SelectedCabin { get; set; }
-
-        // Pricing information
-        public Dictionary<int, decimal> MinPriceByFlightId { get; set; } = new();
     }
 }

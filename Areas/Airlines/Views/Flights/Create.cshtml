@@ -1,5 +1,6 @@
-@model GroupOneFlight.Areas.Airlines.ViewModels.DetailFlightViewModel
-@using GroupOneFlight.Areas.Airlines.Models
+@model GroupOneFlight.Models.ViewModels.FlightFormViewModel
+@using GroupOneFlight.Models.DomainModels
+@using GroupOneFlight.Models.ViewModels
 @{
     Layout = "~/Areas/Airlines/Views/Shared/_AirlineLayout.cshtml";
     ViewData["Title"] = "Create Flight";
@@ -32,8 +33,8 @@
 
                 <div class="form-group mb-3">
                     <label class="form-label">Flight Number <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="FlightNumber"
-                           placeholder="e.g., UA123" value="@Model.Flight?.FlightNumber" required />
+                    <input type="text" class="form-control" name="FlightCode"
+                           placeholder="e.g., UA123" value="@Model.Flight?.FlightCode" required />
                 </div>
 
                 <div class="form-group mb-3">

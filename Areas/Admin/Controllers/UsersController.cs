@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace GroupOneFlight.Areas.Admin.Controllers
 {
     [Area("Admin")]

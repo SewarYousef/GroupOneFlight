@@ -1,4 +1,4 @@
-namespace GroupOneFlight.Areas.Airlines.Models
+namespace GroupOneFlight.Models.DomainModels
 {
     public static class CabinTypes
     {

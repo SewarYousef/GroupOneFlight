@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using GroupOneFlight.Areas.Airlines.Models;
+using GroupOneFlight.Models;
+using GroupOneFlight.Models.DomainModels;
 
-namespace GroupOneFlight.Areas.Airlines.ViewModels
+namespace GroupOneFlight.Models.ViewModels
 {
     public class BookingViewModel
     {
