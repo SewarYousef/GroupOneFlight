@@ -1,10 +1,9 @@
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using GroupOneFlight.Areas.Airlines.ViewModels;
-using GroupOneFlight.Areas.Airlines.Models;
-using System.Linq;
+using GroupOneFlight.Models.ViewModels;
+using GroupOneFlight.Models.DataLayer;
+using GroupOneFlight.Models.DomainModels;
 
 namespace GroupOneFlight.Areas.Airlines.Controllers
 {
@@ -12,9 +11,9 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly AirBnBContext _context;
+        private readonly FlightDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger, AirBnBContext context)
+        public HomeController(ILogger<HomeController> logger, FlightDbContext context)
         {
             _logger = logger;
             _context = context;

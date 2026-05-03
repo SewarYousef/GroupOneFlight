@@ -1,6 +1,7 @@
-@model GroupOneFlight.Areas.Airlines.ViewModels.FlightViewModel
-
-@{
+@model GroupOneFlight.Models.ViewModels.FlightIndexViewModel
+@using GroupOneFlight.Models.DomainModels
+@using GroupOneFlight.Models.ViewModels
+@{ 
     Layout = "~/Areas/Airlines/Views/Shared/_AirlineLayout.cshtml";
     ViewData["Title"] = "Manage Flights";
 }
@@ -48,7 +49,7 @@
                     foreach (var flight in Model.Flights)
                     {
                         <tr>
-                            <td><strong>@(flight.FlightNumber ?? "N/A")</strong></td>
+                            <td><strong>@(flight.FlightCode ?? "N/A")</strong></td>
                             <td>@(flight.Airline?.Name ?? "N/A")</td>
                             <td>@(flight.From ?? "N/A") → @(flight.To ?? "N/A")</td>
                             <td>@flight.Date.ToShortDateString()</td>

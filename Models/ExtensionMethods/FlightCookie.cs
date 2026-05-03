@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 
-namespace GroupOneFlight.Areas.Airlines.Models
+namespace GroupOneFlight.Models.ExtensionMethods
 {
     public class FlightCookie
     {

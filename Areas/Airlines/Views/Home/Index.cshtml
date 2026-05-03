@@ -1,4 +1,7 @@
-@model GroupOneFlight.Areas.Airlines.ViewModels.FlightViewModel
+@model GroupOneFlight.Models.ViewModels.FlightIndexViewModel;
+@using GroupOneFlight.Models.ViewModels;
+@using GroupOneFlight.Models.DomainModels;
+
 
 @{
     ViewData["Title"] = "Flights";
@@ -105,7 +108,7 @@
 
                         <tr>
                             <td>
-                                <strong>@(flight.FlightNumber ?? "N/A")</strong>
+                                <strong>@(flight.FlightCode ?? "N/A")</strong>
                             </td>
                             <td>
                                 <i class="fas fa-plane-departure" style="color: #0d6efd; margin-right: 8px;"></i>

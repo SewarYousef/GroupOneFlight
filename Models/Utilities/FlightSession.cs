@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
+using GroupOneFlight.Models.ViewModels;
 
-namespace GroupOneFlight.Areas.Airlines.Models
+namespace GroupOneFlight.Models.ExtensionMethods
 {
     public class FlightSession
     {
