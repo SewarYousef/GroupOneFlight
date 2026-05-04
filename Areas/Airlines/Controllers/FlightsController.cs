@@ -82,14 +82,30 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         // GET: Airlines/Flights/Manage
         public IActionResult Manage()
         {
-            var viewModel = new FlightViewModel
+            var viewModel = new FlightIndexViewModel
             {
                 Flights = _context.Flights
                     .Include(f => f.Airline)
                     .OrderByDescending(f => f.Date)
                     .ToList(),
 
-                Airlines = _context.Airlines.ToList()
+                FromCities = _context.Flights
+                    .Select(f => f.From)
+                    .Where(f => f != null)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .Select(f => f!)
+                    .ToList(),
+
+                ToCities = _context.Flights
+                    .Select(f => f.To)
+                    .Where(f => f != null)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .Select(f => f!)
+                    .ToList(),
+
+                CabinTypes = CabinTypes.GetAll()
             };
 
             return View(viewModel);
