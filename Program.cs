@@ -30,9 +30,8 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<FlightDbContext>();
 
-    // // Recreate DB (DEV ONLY)
-    // context.Database.EnsureDeleted();
-    // context.Database.EnsureCreated();
+    // Ensure DB exists (preserves data across restarts)
+    context.Database.EnsureCreated();
 
     // Seed Airlines (ONLY if empty to avoid duplicates on restart)
     if (!context.Airlines.Any())
