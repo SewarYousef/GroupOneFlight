@@ -41,8 +41,8 @@ using (var scope = app.Services.CreateScope())
 
     // Wipe stale schema and recreate (safe — old path was ephemeral on Azure)
     // TODO: Comment out EnsureDeleted after first successful deploy to preserve data
-    context.Database.EnsureDeleted();
-    context.Database.EnsureCreated();
+    // context.Database.EnsureDeleted();
+    // context.Database.EnsureCreated();
     // Seed data is now handled by AirlineConfig (DataLayer/Configuration)
 }
 
