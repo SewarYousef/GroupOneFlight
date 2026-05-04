@@ -9,7 +9,9 @@ builder.Services.AddControllersWithViews();
 
 // DbContext
 builder.Services.AddDbContext<FlightDbContext>(options =>
-    options.UseSqlite("Data Source=grouponeflight.db"));
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("SQLite")
+        ?? "Data Source=/home/grouponeflight.db"));
 
 // Http context
 builder.Services.AddHttpContextAccessor();
@@ -30,7 +32,9 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<FlightDbContext>();
 
-    // Ensure DB exists (preserves data across restarts)
+    // Delete stale DB if schema is out of date, then recreate
+    // (safe here because the old path was ephemeral anyway)
+    context.Database.EnsureDeleted();
     context.Database.EnsureCreated();
 
     // Seed Airlines (ONLY if empty to avoid duplicates on restart)
