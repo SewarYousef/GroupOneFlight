@@ -14,6 +14,7 @@ namespace GroupOneFlight.Models.DataLayer
         public DbSet<Flight> Flights { get; set; }
         public DbSet<Airline> Airlines { get; set; }
         public DbSet<FlightOptions> FlightOptions { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
