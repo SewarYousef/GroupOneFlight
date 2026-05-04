@@ -78,7 +78,16 @@ namespace GroupOneFlight.Controllers
                 }
             }
 
-            return View(BuildViewModel(new FlightFilter()));
+            // Read the saved filter from session (if any)
+            var savedFilter = new FlightFilter();
+            var savedFilterJson = HttpContext.Session.GetString("Filter");
+            if (!string.IsNullOrEmpty(savedFilterJson))
+            {
+                try { savedFilter = JsonSerializer.Deserialize<FlightFilter>(savedFilterJson) ?? new FlightFilter(); }
+                catch { /* ignore corrupt session data */ }
+            }
+
+            return View(BuildViewModel(savedFilter));
         }
 
         [HttpPost]
