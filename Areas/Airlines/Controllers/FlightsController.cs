@@ -98,7 +98,7 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         // GET: Airlines/Flights/Create
         public IActionResult Create()
         {
-            var viewModel = new DetailFlightViewModel
+            var viewModel = new FlightFormViewModel
             {
                 Flight = new Flight(),
                 Airlines = _context.Airlines.ToList(),
@@ -154,7 +154,7 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
 
             if (!ModelState.IsValid)
             {
-                var vm = new DetailFlightViewModel
+                var vm = new FlightFormViewModel
                 {
                     Flight = new Flight
                     {
@@ -178,22 +178,52 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
                 return View(vm);
             }
 
-            _context.Flights.Add(new Flight
+            try
             {
-                FlightCode = FlightCode,
-                AirlineId = AirlineId,
-                From = From,
-                To = To,
-                Date = Date,
-                CabinType = CabinType,
-                DepartureTime = DepartureTime,
-                ArrivalTime = ArrivalTime,
-                AircraftType = AircraftType,
-                Emission = Emission,
-                Price = Price
-            });
+                _context.Flights.Add(new Flight
+                {
+                    FlightCode = FlightCode,
+                    AirlineId = AirlineId,
+                    From = From,
+                    To = To,
+                    Date = Date,
+                    CabinType = CabinType,
+                    DepartureTime = DepartureTime,
+                    ArrivalTime = ArrivalTime,
+                    AircraftType = AircraftType,
+                    Emission = Emission,
+                    Price = Price
+                });
 
-            _context.SaveChanges();
+                _context.SaveChanges();
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "An error occurred while saving the flight. Please try again.");
+
+                var vm = new FlightFormViewModel
+                {
+                    Flight = new Flight
+                    {
+                        FlightCode = FlightCode,
+                        AirlineId = AirlineId,
+                        From = From,
+                        To = To,
+                        Date = Date,
+                        CabinType = CabinType,
+                        DepartureTime = DepartureTime,
+                        ArrivalTime = ArrivalTime,
+                        AircraftType = AircraftType,
+                        Emission = Emission,
+                        Price = Price
+                    },
+                    Airlines = _context.Airlines.ToList(),
+                    CabinTypes = CabinTypesList,
+                    AircraftTypes = AircraftTypesList
+                };
+
+                return View(vm);
+            }
 
             TempData["Confirmation"] = $"Flight {FlightCode} was created successfully.";
             return RedirectToAction(nameof(Manage));
@@ -207,7 +237,7 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             var flight = _context.Flights.Find(id);
             if (flight == null) return NotFound();
 
-            var viewModel = new DetailFlightViewModel
+            var viewModel = new FlightFormViewModel
             {
                 Flight = flight,
                 Airlines = _context.Airlines.ToList(),
@@ -250,7 +280,15 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             flight.Emission = Emission;
             flight.Price = Price;
 
-            _context.SaveChanges();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "An error occurred while updating the flight. Please try again.";
+                return RedirectToAction(nameof(Edit), new { id });
+            }
 
             TempData["Confirmation"] = $"Flight {flight.FlightCode} was updated successfully.";
             return RedirectToAction(nameof(Manage));
@@ -258,22 +296,26 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
 
         // GET: Airlines/Flights/Delete/5
         public IActionResult Delete(int? id)
-{
-    if (id == null) return NotFound();
+        {
+            if (id == null) return NotFound();
 
-    var flight = _context.Flights
-        .Include(f => f.Airline)
-        .FirstOrDefault(f => f.Id == id);
+            var flight = _context.Flights
+                .Include(f => f.Airline)
+                .FirstOrDefault(f => f.Id == id);
 
-    if (flight == null) return NotFound();
+            if (flight == null) return NotFound();
 
-    var viewModel = new DetailFlightViewModel
-    {
-        Flight = flight
-    };
+            // Check for existing reservations and surface it in the view
+            ViewBag.HasReservations = _context.Reservations.Any(r => r.FlightId == id);
+            ViewBag.ReservationCount = _context.Reservations.Count(r => r.FlightId == id);
 
-    return View(viewModel);
-}
+            var viewModel = new DetailFlightViewModel
+            {
+                Flight = flight
+            };
+
+            return View(viewModel);
+        }
 
         // POST: Airlines/Flights/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -282,13 +324,32 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
         {
             var flight = _context.Flights.Find(id);
 
-            if (flight != null)
+            if (flight == null)
+            {
+                TempData["Error"] = "Flight not found.";
+                return RedirectToAction(nameof(Manage));
+            }
+
+            // Block deletion if the flight has active reservations
+            bool hasReservations = _context.Reservations.Any(r => r.FlightId == id);
+            if (hasReservations)
+            {
+                TempData["Error"] =
+                    $"Flight {flight.FlightCode} cannot be deleted because it has active reservations.";
+                return RedirectToAction(nameof(Manage));
+            }
+
+            try
             {
                 _context.Flights.Remove(flight);
                 _context.SaveChanges();
-
                 TempData["Confirmation"] =
                     $"Flight {flight.FlightCode} was deleted successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] =
+                    $"An error occurred while deleting flight {flight.FlightCode}. Please try again.";
             }
 
             return RedirectToAction(nameof(Manage));
