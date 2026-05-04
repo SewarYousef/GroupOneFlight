@@ -1,26 +1,33 @@
-using GroupOneFlight.Models.DataLayer;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using GroupOneFlight.Models.ViewModels;
 using GroupOneFlight.Models.DomainModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+using GroupOneFlight.Models.DataLayer.Repositories;
 
 namespace GroupOneFlight.Controllers
 {
     public class SearchController : Controller
     {
-        private readonly FlightDbContext _context;
+        private readonly IFlightRepository        _flights;
+        private readonly IRepository<Reservation> _reservations;
+        private readonly IRepository<Airline>     _airlines;
 
-        public SearchController(FlightDbContext context)
+        public SearchController(
+            IFlightRepository        flights,
+            IRepository<Reservation> reservations,
+            IRepository<Airline>     airlines)
         {
-            _context = context;
+            _flights      = flights;
+            _reservations = reservations;
+            _airlines     = airlines;
         }
 
         // =========================
-        // SESSION HELPERS
+        // SESSION / COOKIE HELPERS
         // =========================
 
         private const string SESSION_KEY = "SelectedFlights";
+        private const string COOKIE_KEY  = "SelectedFlightsCookie";
 
         private List<int> GetSessionFlights()
         {
@@ -30,17 +37,8 @@ namespace GroupOneFlight.Controllers
                 : JsonSerializer.Deserialize<List<int>>(data) ?? new List<int>();
         }
 
-        private void SaveSessionFlights(List<int> flights)
-        {
-            HttpContext.Session.SetString(SESSION_KEY,
-                JsonSerializer.Serialize(flights));
-        }
-
-        // =========================
-        // COOKIE HELPERS
-        // =========================
-
-        private const string COOKIE_KEY = "SelectedFlightsCookie";
+        private void SaveSessionFlights(List<int> flights) =>
+            HttpContext.Session.SetString(SESSION_KEY, JsonSerializer.Serialize(flights));
 
         private List<int> GetCookieFlights()
         {
@@ -50,16 +48,9 @@ namespace GroupOneFlight.Controllers
                 : JsonSerializer.Deserialize<List<int>>(cookie) ?? new List<int>();
         }
 
-        private void SaveCookieFlights(List<int> flights)
-        {
-            Response.Cookies.Append(COOKIE_KEY,
-                JsonSerializer.Serialize(flights),
-                new CookieOptions
-                {
-                    Expires = DateTimeOffset.Now.AddDays(7),
-                    HttpOnly = true
-                });
-        }
+        private void SaveCookieFlights(List<int> flights) =>
+            Response.Cookies.Append(COOKIE_KEY, JsonSerializer.Serialize(flights),
+                new CookieOptions { Expires = DateTimeOffset.Now.AddDays(7), HttpOnly = true });
 
         // =========================
         // INDEX
@@ -68,35 +59,19 @@ namespace GroupOneFlight.Controllers
         public IActionResult Index()
         {
             var sessionFlights = GetSessionFlights();
-
             if (!sessionFlights.Any())
             {
                 var cookieFlights = GetCookieFlights();
-                if (cookieFlights.Any())
-                {
-                    SaveSessionFlights(cookieFlights);
-                }
+                if (cookieFlights.Any()) SaveSessionFlights(cookieFlights);
             }
-
-            // Read the saved filter from session (if any)
-            var savedFilter = new FlightFilter();
-            var savedFilterJson = HttpContext.Session.GetString("Filter");
-            if (!string.IsNullOrEmpty(savedFilterJson))
-            {
-                try { savedFilter = JsonSerializer.Deserialize<FlightFilter>(savedFilterJson) ?? new FlightFilter(); }
-                catch { /* ignore corrupt session data */ }
-            }
-
-            return View(BuildViewModel(savedFilter));
+            return View(BuildViewModel(new FlightFilter()));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Index(FlightFilter filter)
         {
-            HttpContext.Session.SetString("Filter",
-                JsonSerializer.Serialize(filter));
-
+            HttpContext.Session.SetString("Filter", JsonSerializer.Serialize(filter));
             return RedirectToAction(nameof(Index));
         }
 
@@ -112,17 +87,16 @@ namespace GroupOneFlight.Controllers
 
         public IActionResult Details(int id)
         {
-            var flight = _context.Flights
-                .Include(f => f.Airline)
-                .FirstOrDefault(f => f.Id == id);
-
+            var flight = _flights.Get(new QueryOptions<Flight>
+            {
+                Where    = f => f.Id == id,
+                Includes = "Airline"
+            });
             if (flight == null) return NotFound();
 
             var selected = GetSessionFlights();
-
-            ViewBag.IsSelected = selected.Contains(id);
+            ViewBag.IsSelected    = selected.Contains(id);
             ViewBag.SelectionCount = selected.Count;
-
             return View(flight);
         }
 
@@ -134,20 +108,17 @@ namespace GroupOneFlight.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Select(int flightId)
         {
-            var flight = _context.Flights.FirstOrDefault(f => f.Id == flightId);
+            var flight = _flights.Get(flightId);
             if (flight == null) return NotFound();
 
             var sessionFlights = GetSessionFlights();
-
-            if (!sessionFlights.Contains(flightId))
-                sessionFlights.Add(flightId);
+            if (!sessionFlights.Contains(flightId)) sessionFlights.Add(flightId);
 
             SaveSessionFlights(sessionFlights);
             SaveCookieFlights(sessionFlights);
 
             TempData["Confirmation"] =
                 $"Flight {flight.FlightCode} selected! You have {sessionFlights.Count} flight(s).";
-
             return RedirectToAction(nameof(Index));
         }
 
@@ -157,20 +128,14 @@ namespace GroupOneFlight.Controllers
 
         public IActionResult Selections()
         {
-            var ids = GetSessionFlights();
-
-            var flights = _context.Flights
-                .Include(f => f.Airline)
-                .Where(f => ids.Contains(f.Id))
-                .ToList();
-
+            var ids     = GetSessionFlights();
+            var flights = _flights.GetByIds(ids).ToList();
             ViewBag.SelectionCount = ids.Count;
-
             return View(flights);
         }
 
         // =========================
-        // REMOVE
+        // REMOVE / CLEAR
         // =========================
 
         [HttpPost]
@@ -178,36 +143,24 @@ namespace GroupOneFlight.Controllers
         public IActionResult RemoveFlight(int flightId)
         {
             var flights = GetSessionFlights();
-
             flights.Remove(flightId);
-
             SaveSessionFlights(flights);
             SaveCookieFlights(flights);
 
-            var flight = _context.Flights.FirstOrDefault(f => f.Id == flightId);
-
-            TempData["Confirmation"] =
-                flight != null
+            var flight = _flights.Get(flightId);
+            TempData["Confirmation"] = flight != null
                 ? $"Flight {flight.FlightCode} removed from selections."
                 : "Flight removed.";
-
             return RedirectToAction(nameof(Selections));
         }
-
-        // =========================
-        // CLEAR ALL
-        // =========================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult ClearAll()
         {
             HttpContext.Session.Remove(SESSION_KEY);
-
             Response.Cookies.Delete(COOKIE_KEY);
-
             TempData["Confirmation"] = "All selections cleared.";
-
             return RedirectToAction(nameof(Selections));
         }
 
@@ -218,81 +171,65 @@ namespace GroupOneFlight.Controllers
         public IActionResult Book()
         {
             var ids = GetSessionFlights();
-
             if (!ids.Any())
             {
                 TempData["Error"] = "No flights selected. Please select flights first.";
                 return RedirectToAction(nameof(Index));
             }
 
-            var flights = _context.Flights
-                .Include(f => f.Airline)
-                .Where(f => ids.Contains(f.Id))
-                .ToList();
-
-            var vm = new ReservationViewModel
+            var flights = _flights.GetByIds(ids).ToList();
+            return View(new ReservationViewModel
             {
                 SelectedFlights = flights,
-                CabinTypes = CabinTypes.GetAll(),
-                TotalPrice = flights.Sum(f => f.Price)
-            };
-
-            return View(vm);
+                CabinTypes      = CabinTypes.GetAll(),
+                TotalPrice      = flights.Sum(f => f.Price)
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Book(ReservationViewModel model)
         {
-            var ids = GetSessionFlights();
-            var flights = _context.Flights
-                .Include(f => f.Airline)
-                .Where(f => ids.Contains(f.Id))
-                .ToList();
+            var ids     = GetSessionFlights();
+            var flights = _flights.GetByIds(ids).ToList();
 
-            // Repopulate non-bound properties before any possible return
             model.SelectedFlights = flights;
-            model.CabinTypes = CabinTypes.GetAll();
-            model.TotalPrice = flights.Sum(f => f.Price) * model.PassengerCount;
+            model.CabinTypes      = CabinTypes.GetAll();
+            model.TotalPrice      = flights.Sum(f => f.Price) * model.PassengerCount;
 
             if (!flights.Any())
             {
-                ModelState.AddModelError("", "No flights found for your selection. Please start over.");
+                ModelState.AddModelError("", "No flights found. Please start over.");
                 return View(model);
             }
+            if (!ModelState.IsValid) return View(model);
 
-            if (!ModelState.IsValid)
-                return View(model);
-
-            // Generate a short, readable confirmation number
             string confirmationNumber = "RES-" + Guid.NewGuid().ToString("N")[..8].ToUpper();
 
             try
             {
                 foreach (var flight in flights)
                 {
-                    _context.Reservations.Add(new Reservation
+                    _reservations.Insert(new Reservation
                     {
                         ConfirmationNumber = confirmationNumber,
-                        FlightId = flight.Id,
-                        PassengerName = model.PassengerName.Trim(),
-                        Email = model.Email.Trim(),
-                        CabinType = model.CabinType,
-                        PassengerCount = model.PassengerCount,
-                        TotalPrice = flight.Price * model.PassengerCount,
-                        BookingDate = DateTime.Now
+                        FlightId           = flight.Id,
+                        PassengerName      = model.PassengerName.Trim(),
+                        Email              = model.Email.Trim(),
+                        CabinType          = model.CabinType,
+                        PassengerCount     = model.PassengerCount,
+                        TotalPrice         = flight.Price * model.PassengerCount,
+                        BookingDate        = DateTime.Now
                     });
                 }
-
-                _context.SaveChanges();
+                _reservations.Save();
             }
-            catch (Exception)
+            catch
             {
-                ModelState.AddModelError("", "An error occurred while saving your reservation. Please try again.");
+                ModelState.AddModelError("", "An error occurred saving your reservation. Please try again.");
                 return View(model);
             }
 
-            // Clear session & cookie selections after successful booking
             HttpContext.Session.Remove(SESSION_KEY);
             Response.Cookies.Delete(COOKIE_KEY);
 
@@ -305,17 +242,15 @@ namespace GroupOneFlight.Controllers
 
         public IActionResult Confirmation(string? confirmationNumber)
         {
-            if (string.IsNullOrEmpty(confirmationNumber))
-                return RedirectToAction(nameof(Index));
+            if (string.IsNullOrEmpty(confirmationNumber)) return RedirectToAction(nameof(Index));
 
-            var reservations = _context.Reservations
-                .Include(r => r.Flight)
-                .ThenInclude(f => f!.Airline)
-                .Where(r => r.ConfirmationNumber == confirmationNumber)
-                .ToList();
+            var reservations = _reservations.List(new QueryOptions<Reservation>
+            {
+                Where    = r => r.ConfirmationNumber == confirmationNumber,
+                Includes = "Flight,Flight.Airline"
+            }).ToList();
 
             if (!reservations.Any()) return NotFound();
-
             return View(reservations);
         }
 
@@ -325,42 +260,51 @@ namespace GroupOneFlight.Controllers
 
         private SearchViewModel BuildViewModel(FlightFilter filter)
         {
-            var query = _context.Flights
-                .Include(f => f.Airline)
-                .AsQueryable();
+            var options = new QueryOptions<Flight> { Includes = "Airline" };
 
             if (!string.IsNullOrEmpty(filter.From))
-                query = query.Where(f => f.From == filter.From);
-
+                options.Where = f => f.From == filter.From;
             if (!string.IsNullOrEmpty(filter.To))
-                query = query.Where(f => f.To == filter.To);
+            {
+                var from = filter.From;
+                if (!string.IsNullOrEmpty(from))
+                    options.Where = f => f.From == from && f.To == filter.To;
+                else
+                    options.Where = f => f.To == filter.To;
+            }
 
-            if (filter.DepartureDate.HasValue)
-                query = query.Where(f => f.Date.Date == filter.DepartureDate.Value.Date);
+            // Re-read filter from session
+            var savedFilterJson = HttpContext.Session.GetString("Filter");
+            FlightFilter activeFilter = filter;
+            if (!string.IsNullOrEmpty(savedFilterJson))
+            {
+                try { activeFilter = JsonSerializer.Deserialize<FlightFilter>(savedFilterJson) ?? filter; }
+                catch { /* ignore */ }
+            }
 
-            if (!string.IsNullOrEmpty(filter.CabinType) && filter.CabinType != "All")
-                query = query.Where(f => f.CabinType == filter.CabinType);
+            var allFlights = _flights.GetAllWithAirline().ToList();
+
+            // Apply filters
+            IEnumerable<Flight> filtered = allFlights;
+            if (!string.IsNullOrEmpty(activeFilter.From))
+                filtered = filtered.Where(f => f.From == activeFilter.From);
+            if (!string.IsNullOrEmpty(activeFilter.To))
+                filtered = filtered.Where(f => f.To == activeFilter.To);
+            if (activeFilter.DepartureDate.HasValue)
+                filtered = filtered.Where(f => f.Date.Date == activeFilter.DepartureDate.Value.Date);
+            if (!string.IsNullOrEmpty(activeFilter.CabinType) && activeFilter.CabinType != "All")
+                filtered = filtered.Where(f => f.CabinType == activeFilter.CabinType);
 
             return new SearchViewModel
             {
-                Flights = query.ToList(),
-                Airlines = _context.Airlines.ToList(),
-                Filter = filter,
+                Flights        = filtered.ToList(),
+                Airlines       = _airlines.List(new QueryOptions<Airline>()).ToList(),
+                Filter         = activeFilter,
                 SelectionCount = GetSessionFlights().Count,
-
-                FromCities = _context.Flights
-                    .Select(f => f.From)
-                    .Where(c => c != null)
-                    .Distinct()
-                    .OrderBy(c => c)
-                    .ToList()!,
-
-                ToCities = _context.Flights
-                    .Select(f => f.To)
-                    .Where(c => c != null)
-                    .Distinct()
-                    .OrderBy(c => c)
-                    .ToList()!
+                FromCities     = allFlights.Select(f => f.From).Where(c => c != null)
+                                           .Distinct().OrderBy(c => c).Select(c => c!).ToList(),
+                ToCities       = allFlights.Select(f => f.To).Where(c => c != null)
+                                           .Distinct().OrderBy(c => c).Select(c => c!).ToList()
             };
         }
     }
