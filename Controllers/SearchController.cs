@@ -203,6 +203,114 @@ namespace GroupOneFlight.Controllers
         }
 
         // =========================
+        // BOOK
+        // =========================
+
+        public IActionResult Book()
+        {
+            var ids = GetSessionFlights();
+
+            if (!ids.Any())
+            {
+                TempData["Error"] = "No flights selected. Please select flights first.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var flights = _context.Flights
+                .Include(f => f.Airline)
+                .Where(f => ids.Contains(f.Id))
+                .ToList();
+
+            var vm = new ReservationViewModel
+            {
+                SelectedFlights = flights,
+                CabinTypes = CabinTypes.GetAll(),
+                TotalPrice = flights.Sum(f => f.Price)
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Book(ReservationViewModel model)
+        {
+            var ids = GetSessionFlights();
+            var flights = _context.Flights
+                .Include(f => f.Airline)
+                .Where(f => ids.Contains(f.Id))
+                .ToList();
+
+            // Repopulate non-bound properties before any possible return
+            model.SelectedFlights = flights;
+            model.CabinTypes = CabinTypes.GetAll();
+            model.TotalPrice = flights.Sum(f => f.Price) * model.PassengerCount;
+
+            if (!flights.Any())
+            {
+                ModelState.AddModelError("", "No flights found for your selection. Please start over.");
+                return View(model);
+            }
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Generate a short, readable confirmation number
+            string confirmationNumber = "RES-" + Guid.NewGuid().ToString("N")[..8].ToUpper();
+
+            try
+            {
+                foreach (var flight in flights)
+                {
+                    _context.Reservations.Add(new Reservation
+                    {
+                        ConfirmationNumber = confirmationNumber,
+                        FlightId = flight.Id,
+                        PassengerName = model.PassengerName.Trim(),
+                        Email = model.Email.Trim(),
+                        CabinType = model.CabinType,
+                        PassengerCount = model.PassengerCount,
+                        TotalPrice = flight.Price * model.PassengerCount,
+                        BookingDate = DateTime.Now
+                    });
+                }
+
+                _context.SaveChanges();
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "An error occurred while saving your reservation. Please try again.");
+                return View(model);
+            }
+
+            // Clear session & cookie selections after successful booking
+            HttpContext.Session.Remove(SESSION_KEY);
+            Response.Cookies.Delete(COOKIE_KEY);
+
+            return RedirectToAction(nameof(Confirmation), new { confirmationNumber });
+        }
+
+        // =========================
+        // CONFIRMATION
+        // =========================
+
+        public IActionResult Confirmation(string? confirmationNumber)
+        {
+            if (string.IsNullOrEmpty(confirmationNumber))
+                return RedirectToAction(nameof(Index));
+
+            var reservations = _context.Reservations
+                .Include(r => r.Flight)
+                .ThenInclude(f => f!.Airline)
+                .Where(r => r.ConfirmationNumber == confirmationNumber)
+                .ToList();
+
+            if (!reservations.Any()) return NotFound();
+
+            return View(reservations);
+        }
+
+        // =========================
         // VIEW MODEL BUILDER
         // =========================
 
