@@ -23,8 +23,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             _reservations = reservations;
         }
 
-        // Lists 
-        
+        // ── Lists ──────────────────────────────────────────────────────────────
+
         // GET: Airlines/Flights/Index
         public IActionResult Index(string? fromCity, string? toCity, string? cabinType)
         {
@@ -79,8 +79,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             return View(viewModel);
         }
 
-        // Create 
-        
+        // ── Create ─────────────────────────────────────────────────────────────
+
         // GET: Airlines/Flights/Create
         public IActionResult Create()
         {
@@ -113,6 +113,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
                 ModelState.AddModelError("CabinType", "Cabin Type is required.");
             if (Date <= DateTime.Today)
                 ModelState.AddModelError("Date", "Date must be after today.");
+            else if (Date > DateTime.Today.AddYears(3))
+                ModelState.AddModelError("Date", $"Date must be within 3 years (by {DateTime.Today.AddYears(3):yyyy-MM-dd}).");
             if (!string.IsNullOrEmpty(FlightCode))
             {
                 bool isDuplicate = _flights.List(new QueryOptions<Flight>
@@ -148,8 +150,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             }
         }
 
-        // Edit 
-        
+        // ── Edit ───────────────────────────────────────────────────────────────
+
         // GET: Airlines/Flights/Edit/5
         public IActionResult Edit(int? id)
         {
@@ -203,8 +205,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             }
         }
 
-        // Delete 
-        
+        // ── Delete ─────────────────────────────────────────────────────────────
+
         // GET: Airlines/Flights/Delete/5
         public IActionResult Delete(int? id)
         {
@@ -257,8 +259,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             return RedirectToAction(nameof(Manage));
         }
 
-        // Regulation / Remote validation
-        
+        // ── Regulation / Remote validation ─────────────────────────────────────
+
         public IActionResult Regulation() => View(new FlightRegulationViewModel());
 
         [AcceptVerbs("GET", "POST")]
@@ -276,8 +278,8 @@ namespace GroupOneFlight.Areas.Airlines.Controllers
             return Json(!isDuplicate);
         }
 
-        // Helpers 
-        
+        // ── Helpers ────────────────────────────────────────────────────────────
+
         private FlightFormViewModel RebuildFormViewModel(
             string? FlightCode, int AirlineId, string? From, string? To,
             DateTime Date, string? CabinType, string? DepartureTime,
