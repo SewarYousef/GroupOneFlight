@@ -1,0 +1,140 @@
+@model GroupOneFlight.Models.ViewModels.ReservationViewModel
+@using GroupOneFlight.Models.DomainModels
+
+@{
+    ViewData["Title"] = "Book Flights";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-ticket-alt me-2"></i>Book Your Flights</h2>
+        <a asp-controller="Search" asp-action="Selections" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Selections
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <strong>Please fix the following errors:</strong>
+            <ul class="mb-0 mt-1">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="row">
+
+        <!-- Booking Form-->
+        <div class="col-md-7">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Passenger Information</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Search" asp-action="Book" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @(ViewData.ModelState["PassengerName"]?.Errors.Any() == true ? "is-invalid" : "")"
+                                   name="PassengerName" value="@Model.PassengerName"
+                                   placeholder="e.g., Jane Smith" />
+                            @if (ViewData.ModelState["PassengerName"]?.Errors.Any() == true)
+                            {
+                                <div class="invalid-feedback">@ViewData.ModelState["PassengerName"]!.Errors[0].ErrorMessage</div>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control @(ViewData.ModelState["Email"]?.Errors.Any() == true ? "is-invalid" : "")"
+                                   name="Email" value="@Model.Email"
+                                   placeholder="e.g., jane@example.com" />
+                            @if (ViewData.ModelState["Email"]?.Errors.Any() == true)
+                            {
+                                <div class="invalid-feedback">@ViewData.ModelState["Email"]!.Errors[0].ErrorMessage</div>
+                            }
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Passengers <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control @(ViewData.ModelState["PassengerCount"]?.Errors.Any() == true ? "is-invalid" : "")"
+                                       name="PassengerCount" value="@(Model.PassengerCount > 0 ? Model.PassengerCount : 1)"
+                                       min="1" max="9" />
+                                @if (ViewData.ModelState["PassengerCount"]?.Errors.Any() == true)
+                                {
+                                    <div class="invalid-feedback">@ViewData.ModelState["PassengerCount"]!.Errors[0].ErrorMessage</div>
+                                }
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Cabin Type <span class="text-danger">*</span></label>
+                                <select class="form-select @(ViewData.ModelState["CabinType"]?.Errors.Any() == true ? "is-invalid" : "")"
+                                        name="CabinType">
+                                    <option value="">Select cabin…</option>
+                                    @foreach (var cabin in Model.CabinTypes)
+                                    {
+                                        <option value="@cabin" selected="@(Model.CabinType == cabin)">@cabin</option>
+                                    }
+                                </select>
+                                @if (ViewData.ModelState["CabinType"]?.Errors.Any() == true)
+                                {
+                                    <div class="invalid-feedback">@ViewData.ModelState["CabinType"]!.Errors[0].ErrorMessage</div>
+                                }
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check-circle me-1"></i> Confirm Reservation
+                            </button>
+                            <a asp-controller="Search" asp-action="Selections" class="btn btn-outline-secondary btn-lg">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flight Summary-->
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-plane me-2"></i>Your Flights (@Model.SelectedFlights.Count)</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var flight in Model.SelectedFlights)
+                    {
+                        <li class="list-group-item">
+                            <div class="fw-bold">@flight.FlightCode — @flight.Airline?.Name</div>
+                            <div class="text-muted small">
+                                @flight.From → @flight.To
+                                &nbsp;|&nbsp; @flight.Date.ToString("MMM dd, yyyy")
+                            </div>
+                            <div class="text-muted small">
+                                Departs @(flight.DepartureTime ?? "—") &nbsp;·&nbsp;
+                                Arrives @(flight.ArrivalTime ?? "—")
+                            </div>
+                            <div class="text-success fw-semibold mt-1">
+                                $@flight.Price.ToString("0.00") / passenger
+                            </div>
+                        </li>
+                    }
+                </ul>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">Total updates dynamically based on passenger count.</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -26,7 +26,10 @@
     }
     else
     {
-        <div class="d-flex justify-content-end mb-3">
+        <div class="d-flex justify-content-end gap-2 mb-3">
+            <a asp-controller="Search" asp-action="Book" class="btn btn-success">
+                <i class="fas fa-ticket-alt me-1"></i> Book Now (@selCount flight@(selCount != 1 ? "s" : ""))
+            </a>
             <form asp-controller="Search" asp-action="ClearAll" method="post">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-outline-danger btn-sm"
